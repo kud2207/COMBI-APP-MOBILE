@@ -104,7 +104,7 @@ const Register: React.FC = () => {
 
           {/* Confirm Password Input */}
           <Animated.View entering={FadeInDown.duration(700).springify()} style={styles.inputContainer}>
-            <TextInput
+            <TextInput 
               label="Confirm Password"
               value={confirmPassword}
               onChangeText={setConfirmPassword}
