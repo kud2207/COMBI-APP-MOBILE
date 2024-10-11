@@ -31,13 +31,13 @@ const LoginIn: React.FC = () => {
       <View style={styles.contentContainer}>
         <View style={styles.contenaireImg}>
           <Animated.Image
-            entering={FadeInUp.delay(200).duration(1000).springify().damping(0)}
+            entering={FadeInUp.delay(200).duration(1000).springify().damping(5)}
             style={styles.imgTOP1}
             source={require("../../assets/images/light.png")}
             resizeMode="contain"
           />
           <Animated.Image
-            entering={FadeInUp.delay(400).duration(1000).springify().damping(0)}
+            entering={FadeInUp.delay(400).duration(1000).springify().damping(5)}
             style={styles.imgTOP2}
             source={require("../../assets/images/light.png")}
             resizeMode="contain"
@@ -45,10 +45,12 @@ const LoginIn: React.FC = () => {
         </View>
 
         <Animated.View style={styles.contenaireForm}>
-          <View style={[styles.contenaireLOGIN, { marginTop: -30, marginBottom: 50 }]}>
+          <View style={[styles.contenaireLOGIN, { marginTop: -50, marginBottom: 70 }]}>
             <TouchableOpacity style={[styles.loginICON, { backgroundColor: "#3b5998" }]}>
-              <Icon name="user" size={48} color="#fff" />
+              <Icon name="user-secret" size={45} color="#fff" />
             </TouchableOpacity>
+  <Text style={styles.welcomeText}>Welcome My Bro</Text>
+            
           </View>
 
           <Animated.View entering={FadeInDown.duration(700).springify()} style={styles.inputContainer}>
@@ -70,7 +72,7 @@ const LoginIn: React.FC = () => {
               style={[styles.input, { marginBottom: 10 }]}
               mode="outlined"
               left={<TextInput.Icon icon="lock" />}
-              right={<TextInput.Icon icon="eye" />}
+              right={<TextInput.Icon icon="eye" onPress={()=>setSecureTextEntry(!secureTextEntry)} />}
             />
           </Animated.View>
 
@@ -117,12 +119,13 @@ const styles = StyleSheet.create({
       alignItems: "center",
     },
     imageBG: {
-      flex: 1,
+    
       width: "100%",
       height: "100%",
       position: "absolute",
       justifyContent: "center",
       alignItems: "center",
+      
     },
     contentContainer: {
       flex: 1,
@@ -145,7 +148,7 @@ const styles = StyleSheet.create({
       flex: 1,
       justifyContent: "center",
       alignItems: "center",
-      marginBottom: 120,
+      marginBottom: 140,
     },
     contenaireLOGIN: {
       display: "flex",
@@ -159,6 +162,13 @@ const styles = StyleSheet.create({
       justifyContent: "center",
       width: 70,
       height: 70,
+    },
+    welcomeText: {
+      marginTop: 1,
+      fontSize: 25,
+      color: "white", 
+      textAlign: "center",
+      fontWeight: 'bold'
     },
     inputContainer: {
       flexDirection: "row",
@@ -183,7 +193,7 @@ const styles = StyleSheet.create({
       marginTop: 0,
     },
     socialButton: {
-      borderRadius: 50,
+      borderRadius: 10,
       alignItems: "center",
       justifyContent: "center",
       width: 47,
@@ -198,7 +208,7 @@ const styles = StyleSheet.create({
     },
     horizontalLine: {
       flex: 1,
-      height: 1,
+      height: 2,
       backgroundColor: "#d3d3d3",
     },
     connectWithText: {

@@ -21,6 +21,7 @@ const Register: React.FC = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [secureTextEntry, setSecureTextEntry] = useState(true); 
+  const [secureTextEntry2, setSecureTextEntry2] = useState(true);
 
   return (
     <View style={styles.container}>
@@ -34,13 +35,13 @@ const Register: React.FC = () => {
       <View style={styles.contentContainer}>
         <View style={styles.contenaireImg}>
           <Animated.Image
-            entering={FadeInUp.delay(200).duration(1000).springify().damping(0)}
+            entering={FadeInUp.delay(200).duration(1000).springify().damping(4)}
             style={styles.imgTOP1}
             source={require("../../assets/images/light.png")}
             resizeMode="contain"
           />
           <Animated.Image
-            entering={FadeInUp.delay(400).duration(1000).springify().damping(0)}
+            entering={FadeInUp.delay(400).duration(1000).springify().damping(4)}
             style={styles.imgTOP2}
             source={require("../../assets/images/light.png")}
             resizeMode="contain"
@@ -107,11 +108,11 @@ const Register: React.FC = () => {
               label="Confirm Password"
               value={confirmPassword}
               onChangeText={setConfirmPassword}
-              secureTextEntry={secureTextEntry}
+              secureTextEntry={secureTextEntry2}
               style={styles.input}
               mode="outlined"
               left={<TextInput.Icon icon="lock" />} 
-              right={<TextInput.Icon icon="eye" onPress={() => setSecureTextEntry(!secureTextEntry)} />} 
+              right={<TextInput.Icon icon="eye" onPress={() => setSecureTextEntry2(!secureTextEntry2)} />} 
             />
           </Animated.View>
 
@@ -162,7 +163,7 @@ const styles = StyleSheet.create({
   imageBG: {
     flex: 1,
     width: "100%",
-    height: "100%",
+    height: '100%',
     position: "absolute",      
     justifyContent: "center",
     alignItems: "center",
@@ -184,10 +185,9 @@ const styles = StyleSheet.create({
     height: 90,
   },
   contenaireForm: {
-    flex: 1,
+    flex: 8, 
     justifyContent: 'center',  
     alignItems: 'center',
-    marginBottom: 160,
     
   },
   contenaireLOGIN:{
@@ -226,7 +226,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   socialButton: {
-    borderRadius: 50,
+    borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
     width: 47,
