@@ -4,14 +4,22 @@ import { createDrawerNavigator } from '@react-navigation/drawer';
 import LoginIn from '../login/login-in';
 import Register from '../login/login-up';
 import Icon from "react-native-vector-icons/Ionicons";
+import CustonDrawer from '../../components/home/custon-drawer';
+import BottomTabNavigator from './bottom-tab-navigator';
 
 const Drawer = createDrawerNavigator();
 
 const DrawerNavigator = () => {
   return (
     <Drawer.Navigator
+    drawerContent={props => <CustonDrawer {...props} />}
+    screenOptions={{headerShown: true,
+
+        drawerActiveBackgroundColor:'#aa18ea'
+    }}
+
     >
-      <Drawer.Screen name="Feed" component={LoginIn}
+      <Drawer.Screen name="Feed" component={BottomTabNavigator}
       
       options={{
         drawerLabel: 'Home',

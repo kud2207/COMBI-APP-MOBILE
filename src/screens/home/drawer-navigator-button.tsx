@@ -7,7 +7,7 @@ import CustonDrawer from '../../components/home/custon-drawer';
 
 const Drawer = createDrawerNavigator();
 
-const DrawerNavigatorNutton =() => {
+const DrawerNavigatorButton =() => {
   return (
     <Drawer.Navigator
     drawerContent={props => <CustonDrawer {...props} /> }
@@ -36,4 +36,4 @@ const DrawerNavigatorNutton =() => {
 
 const styles = StyleSheet.create({})
 
-export default DrawerNavigatorNutton 
+export default DrawerNavigatorButton 
