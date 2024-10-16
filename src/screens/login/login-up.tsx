@@ -5,12 +5,15 @@ import {
   StatusBar,
   ImageBackground,
   TouchableOpacity,
-  Keyboard,
 } from "react-native";
 import { TextInput, Button, Dialog, Portal } from "react-native-paper";
 import Animated, { FadeInDown, FadeInUp } from "react-native-reanimated";
 import Icon from "react-native-vector-icons/FontAwesome";
-import { DataUser, NavigationPropsDrawerNavigator, NavigationPropsRegister } from "../../types/types";
+import {
+  DataUser,
+  NavigationPropsDrawerNavigator,
+  NavigationPropsRegister,
+} from "../../types/types";
 import { useNavigation } from "@react-navigation/native";
 import { normal } from "../../constants/color";
 import { Text } from "react-native-paper";
@@ -19,14 +22,15 @@ import { ActivityIndicator } from "react-native-paper";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Register: React.FC = () => {
-  const navigation = useNavigation<NavigationPropsRegister | NavigationPropsDrawerNavigator>();
+  const navigation = useNavigation<
+    NavigationPropsRegister | NavigationPropsDrawerNavigator>();
   // État global pour tous les champs
   const [formData, setFormData] = useState<DataUser>({
     name: "ulrich",
     secondName: "auriol",
-    phoneNumber: "6292134088",
-    password: "1",
-    confirmPassword: "1",
+    phoneNumber: "629213408",
+    password: "12j",
+    confirmPassword: "12j",
   });
 
   const [errors, setErrors] = useState({
@@ -50,19 +54,44 @@ const Register: React.FC = () => {
     setErrors({ ...errors, [field]: value === "" });
   };
 
+  /*-----------Gestion du Formulaire---------------------*/
+  const [errorAf, setErrorAf] = useState<string>(""); //aff ero register
+  const [visible, setVisible] = React.useState(false); //visible modal
 
-  //Gestion du Formulaire
-  const [errorAf, setErrorAf] = useState<string>("");
-  const [visible, setVisible] = React.useState(false);
-
-  const hideDialog = () => { //visibilité de lamodal
+  const hideDialog = () => {
+    //visibilité de lamodal
     setVisible(false);
     setErrorAf("");
   };
 
-  const confirmRegister =()=>{//creation du compte dans le storage
-    setVisible(false) ; navigation.navigate("DrawerNavigator")
-  }
+  //creation du compte dans le storage
+  const confirmRegister = async () => {
+    setVisible(false);
+    try {
+      const jsonUsersCombi = JSON.stringify(formData);
+      await AsyncStorage.setItem("user-combi", jsonUsersCombi);
+
+      // Récupère et affiche les données stockées
+      const jsonValue = await AsyncStorage.getItem("user-combi");
+      if (jsonValue != null) {
+        const parsedValue = JSON.parse(jsonValue);
+        console.log(
+          "Données enregistrées dans le local storage :",
+          parsedValue
+        );
+      } else {
+        console.log("Aucune donnée trouvée dans le local storage");
+      }
+    } catch (e: any) {
+      setErrorAf("An error occurred while saving");
+      console.error("Error saving to storage", e.message);
+    }
+
+    navigation.reset({
+      index: 0,
+      routes: [{ name: "DrawerNavigator" }],
+    });
+  };
 
   const handleFormSubmit = () => {
     const { name, secondName, phoneNumber, password, confirmPassword } =
@@ -81,7 +110,6 @@ const Register: React.FC = () => {
       setTimeout(() => {
         setVisible(true);
       }, 3000);
-
     }
   };
 
@@ -265,15 +293,19 @@ const Register: React.FC = () => {
           <Text>
             I have an account?
             <TouchableOpacity onPress={() => navigation.navigate("LoginIn")}>
-              <Text style={{ color: normal.secondary }}> SignIn</Text>
+              <Text style={{ color: normal.secondary, fontSize: 15 }}>
+                {" "}
+                SignIn
+              </Text>
             </TouchableOpacity>
             {/* ModalConfirmation */}
             <Portal>
-              <Dialog visible={visible} onDismiss={hideDialog} >
+              <Dialog visible={visible} onDismiss={hideDialog}>
                 <Dialog.Icon icon="account-check" size={50} />
                 <Dialog.Title style={styles.title}>
                   Do you want to save this data?
                 </Dialog.Title>
+
                 <Dialog.Content>
                   <View style={styles.contenaireData}>
                     <Text variant="bodyMedium" style={styles.labelText}>
@@ -302,7 +334,7 @@ const Register: React.FC = () => {
                 </Dialog.Content>
                 <Dialog.Actions>
                   <Button onPress={() => hideDialog()}>Cancel</Button>
-                  <Button onPress={confirmRegister}>Yes</Button>
+                  <Button onPress={confirmRegister}>Save</Button>
                 </Dialog.Actions>
               </Dialog>
             </Portal>
@@ -326,6 +358,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     justifyContent: "center",
     alignItems: "center",
+    top: -180,
   },
   contentContainer: {
     flex: 1,
@@ -370,10 +403,10 @@ const styles = StyleSheet.create({
   input: {
     width: "100%",
     height: 40,
-    marginBottom: 10,
+    marginBottom: 8,
   },
   button: {
-    marginTop: 15,
+    marginTop: 3,
     width: 300,
     backgroundColor: normal.primary,
   },
@@ -381,7 +414,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-evenly",
     width: "60%",
-    marginTop: 10,
+    marginTop: 5,
   },
   socialButton: {
     borderRadius: 10,
@@ -417,10 +450,10 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
   contenaireData: {
-    flex: 1,
+    flex: 0,
     flexDirection: "row",
     justifyContent: "space-between",
-    marginVertical: 5,
+    marginVertical: 0,
   },
   labelText: {
     fontSize: 16,
