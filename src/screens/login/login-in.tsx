@@ -5,19 +5,71 @@ import {
   StyleSheet,
   StatusBar,
   ImageBackground,
-  Text,
   TouchableOpacity,
 } from "react-native";
-import { NavigationPropsDrawerNavigator, NavigationPropsLoginIn } from "../../types/types";
-import { TextInput, Button } from "react-native-paper";
+import {
+  NavigationPropsDrawerNavigator,
+  NavigationPropsLoginIn,
+} from "../../types/types";
+import { TextInput, Button, ActivityIndicator, Text } from "react-native-paper";
 import Animated, { FadeInDown, FadeInUp } from "react-native-reanimated";
 import Icon from "react-native-vector-icons/FontAwesome";
+import { normal } from "../../constants/color";
+import { getStoredData, VeriedLoginIn } from "../../types/functions";
+import { ErrorLogin } from "../../types/enums";
 
 const LoginIn: React.FC = () => {
-  const navigation = useNavigation<NavigationPropsLoginIn | NavigationPropsDrawerNavigator>();
-  const [numberPhone, setNumberPhone] = useState("");
-  const [password, setPassword] = useState("");
+  const navigation = useNavigation<
+    NavigationPropsLoginIn | NavigationPropsDrawerNavigator
+  >();
+
+  const [formData, setFormData] = useState({
+    phoneNumber: "",
+    password: "",
+  });
   const [secureTextEntry, setSecureTextEntry] = useState(true);
+
+  /** Gestion de la connexion COMBO--APP  */
+  const [errorAf, setErrorAf] = useState<string>(""); // Affiche l'erreur de login
+
+  // Fonction pour mettre à jour les valeurs de phoneNumber et password
+  const handleInputChange = (field: string, value: string) => {
+    setFormData({
+      ...formData,
+      [field]: value,
+    });
+  };
+
+  //Login
+  const handleConnexion = async () => {
+    const storedData = await getStoredData();
+    if (storedData) {
+      const { phoneNumber, password } = storedData; // Utilise les données du form
+      const phoneNumberVerified1 = phoneNumber;
+      const passwordVerified1 = password;
+      const phone = formData.phoneNumber;
+      const pwd = formData.password;
+
+      // Valide les données récupérées
+      const verifiedLogin = VeriedLoginIn({
+        phoneNumber: phone,
+        password: pwd,
+        phoneNumberVerified: phoneNumberVerified1,
+        passwordVerified: passwordVerified1,
+      });
+
+      if (verifiedLogin) {
+        setErrorAf(verifiedLogin);
+      } else {
+        setErrorAf("isCorrect");
+        setTimeout(() => {
+          navigation.navigate("DrawerNavigator");
+        }, 3000);
+      }
+    } else {
+      setErrorAf(ErrorLogin.erro9);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -64,9 +116,9 @@ const LoginIn: React.FC = () => {
             style={styles.inputContainer}
           >
             <TextInput
-              label="Numumber Phone"
-              value={numberPhone}
-              onChangeText={setNumberPhone}
+              label="Phone Number"
+              value={formData.phoneNumber}
+              onChangeText={(value) => handleInputChange("phoneNumber", value)}
               style={styles.input}
               mode="outlined"
               left={<TextInput.Icon icon="phone" />}
@@ -78,8 +130,8 @@ const LoginIn: React.FC = () => {
           >
             <TextInput
               label="Password"
-              value={password}
-              onChangeText={setPassword}
+              value={formData.password}
+              onChangeText={(value) => handleInputChange("password", value)}
               secureTextEntry={secureTextEntry}
               style={[styles.input, { marginBottom: 10 }]}
               mode="outlined"
@@ -114,12 +166,20 @@ const LoginIn: React.FC = () => {
               <Icon name="facebook" size={20} color="#fff" />
             </TouchableOpacity>
           </Animated.View>
-
+          <Animated.View entering={FadeInDown.duration(700).springify()}>
+            <Text variant="labelSmall" style={styles.errorText}>
+              {errorAf === "isCorrect" ? (
+                <ActivityIndicator animating={true} color={normal.primary} />
+              ) : (
+                errorAf
+              )}
+            </Text>
+          </Animated.View>
           <Animated.View entering={FadeInDown.duration(700).springify()}>
             <Button
               icon={() => <Icon name="sign-in" size={20} color="white" />}
               mode="contained"
-              onPress={() => navigation.navigate("DrawerNavigator")}
+              onPress={handleConnexion}
               style={styles.button}
             >
               Login
@@ -136,6 +196,7 @@ const LoginIn: React.FC = () => {
     </View>
   );
 };
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -204,7 +265,7 @@ const styles = StyleSheet.create({
     marginBottom: 0,
   },
   button: {
-    marginTop: 20,
+    marginTop: 10,
     width: 300,
     backgroundColor: "#007bff",
   },
@@ -223,6 +284,7 @@ const styles = StyleSheet.create({
     borderColor: "white",
     borderStyle: "solid",
     borderWidth: 1,
+    marginBottom: 5,
   },
   connectWithContainer: {
     flexDirection: "row",
@@ -236,6 +298,10 @@ const styles = StyleSheet.create({
   connectWithText: {
     color: "#888",
     marginBottom: 6,
+  },
+  errorText: {
+    color: normal.errr,
+    textAlign: "center",
   },
 });
 
