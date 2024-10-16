@@ -17,22 +17,25 @@ import {
 import { useNavigation } from "@react-navigation/native";
 import { normal } from "../../constants/color";
 import { Text } from "react-native-paper";
-import { VerifiedLoginUp } from "../../types/functions";
+import { isIdStore, VerifiedLoginUp } from "../../types/functions";
 import { ActivityIndicator } from "react-native-paper";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { ErrorLogin } from "../../types/enums";
 
 const Register: React.FC = () => {
   const navigation = useNavigation<
-    NavigationPropsRegister | NavigationPropsDrawerNavigator>();
+    NavigationPropsRegister | NavigationPropsDrawerNavigator
+  >();
   // État global pour tous les champs
   const [formData, setFormData] = useState<DataUser>({
+    idCombi: "ddd",
     name: "ulrich",
     secondName: "auriol",
     phoneNumber: "629213408",
     password: "12j",
     confirmPassword: "12j",
   });
-
+  const aaa = formData.idCombi; //pwd store
   const [errors, setErrors] = useState({
     name: false,
     secondName: false,
@@ -69,10 +72,10 @@ const Register: React.FC = () => {
     setVisible(false);
     try {
       const jsonUsersCombi = JSON.stringify(formData);
-      await AsyncStorage.setItem("user-combi", jsonUsersCombi);
+      await AsyncStorage.setItem(aaa, jsonUsersCombi);
 
       // Récupère et affiche les données stockées
-      const jsonValue = await AsyncStorage.getItem("user-combi");
+      const jsonValue = await AsyncStorage.getItem(aaa);
       if (jsonValue != null) {
         const parsedValue = JSON.parse(jsonValue);
         console.log(
@@ -93,18 +96,29 @@ const Register: React.FC = () => {
     });
   };
 
-  const handleFormSubmit = () => {
-    const { name, secondName, phoneNumber, password, confirmPassword } =
-      formData;
+  const handleFormSubmit = async () => {
+    const {
+      idCombi,
+      name,
+      secondName,
+      phoneNumber,
+      password,
+      confirmPassword,
+    } = formData;
     const ValidationError = VerifiedLoginUp({
+      idCombi,
       name,
       secondName,
       phoneNumber,
       password,
       confirmPassword,
     });
+    //verifie si IdCombi existe
+    const isV = await isIdStore({ idStore: aaa });
     if (ValidationError) {
       setErrorAf(ValidationError);
+    } else if (isV) {
+      setErrorAf(ErrorLogin.erro10);
     } else {
       setErrorAf("isCorrect");
       setTimeout(() => {
@@ -147,6 +161,23 @@ const Register: React.FC = () => {
             </TouchableOpacity>
           </View>
 
+          {/* idCombi */}
+          <Animated.View
+            entering={FadeInDown.duration(700).springify()}
+            style={styles.inputContainer}
+          >
+            <TextInput
+              label="Id To Login"
+              value={formData.idCombi}
+              onChangeText={(value) => handleChange("idCombi", value)}
+              onBlur={() => validateField("idCombi", formData.idCombi)}
+              style={[styles.input]}
+              mode="outlined"
+              error={errors.name}
+              left={<TextInput.Icon icon="key" />}
+              right={<TextInput.Icon icon="checkbox-marked-circle-outline" color="red" />}
+            />
+          </Animated.View>
           {/* Nom */}
           <Animated.View
             entering={FadeInDown.duration(700).springify()}

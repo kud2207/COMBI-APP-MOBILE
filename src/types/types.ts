@@ -13,6 +13,7 @@ export type NavigationPropsDrawerNavigator = StackNavigationProp<RootStackParamL
 //type Login
 
 export type DataUser = {
+    idCombi: string,
     name: string,
     secondName: string,
     phoneNumber: string,

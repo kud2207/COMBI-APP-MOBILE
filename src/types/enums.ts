@@ -8,5 +8,8 @@ export enum ErrorLogin {
     erro6 = 'incorrect phone number or password. please tried again',
     erro7 = 'we are having a connection problem',
     erro8 = 'the phone number or password  was not filled in',
-    erro9= 'No account found. try again'
+    erro9 = 'no account found. try again',
+    erro10 = 'your combi id already exists. go change it',
+    erro11 = 'Id-combi is mandatory',
+    erro12 = 'this account does not exist change Id'
 }

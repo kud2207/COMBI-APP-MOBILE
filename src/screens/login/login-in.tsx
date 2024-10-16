@@ -15,7 +15,7 @@ import { TextInput, Button, ActivityIndicator, Text } from "react-native-paper";
 import Animated, { FadeInDown, FadeInUp } from "react-native-reanimated";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { normal } from "../../constants/color";
-import { getStoredData, VeriedLoginIn } from "../../types/functions";
+import { getStoredData, isIdStore, VeriedLoginIn } from "../../types/functions";
 import { ErrorLogin } from "../../types/enums";
 
 const LoginIn: React.FC = () => {
@@ -24,6 +24,7 @@ const LoginIn: React.FC = () => {
   >();
 
   const [formData, setFormData] = useState({
+    idCombi: "",
     phoneNumber: "",
     password: "",
   });
@@ -42,32 +43,39 @@ const LoginIn: React.FC = () => {
 
   //Login
   const handleConnexion = async () => {
-    const storedData = await getStoredData();
-    if (storedData) {
-      const { phoneNumber, password } = storedData; // Utilise les données du form
-      const phoneNumberVerified1 = phoneNumber;
-      const passwordVerified1 = password;
-      const phone = formData.phoneNumber;
-      const pwd = formData.password;
+    const isIdStore1 = await isIdStore({ idStore: formData.idCombi });
+    if (isIdStore1) {
+      const storedData = await getStoredData({ idCombi: formData.idCombi });
+      if (storedData) {
+        const { phoneNumber, password } = storedData; // Utilise les données du form
+        const phoneNumberVerified1 = phoneNumber;
+        const passwordVerified1 = password;
+        const phone = formData.phoneNumber;
+        const pwd = formData.password;
 
-      // Valide les données récupérées
-      const verifiedLogin = VeriedLoginIn({
-        phoneNumber: phone,
-        password: pwd,
-        phoneNumberVerified: phoneNumberVerified1,
-        passwordVerified: passwordVerified1,
-      });
+        // Valide les données récupérées
+        const verifiedLogin = VeriedLoginIn({
+          phoneNumber: phone,
+          password: pwd,
+          phoneNumberVerified: phoneNumberVerified1,
+          passwordVerified: passwordVerified1,
+        });
 
-      if (verifiedLogin) {
-        setErrorAf(verifiedLogin);
+        if (verifiedLogin) {
+          setErrorAf(verifiedLogin);
+        } else {
+          setErrorAf("isCorrect");
+          setTimeout(() => {
+            navigation.navigate("DrawerNavigator");
+          }, 3000);
+        }
       } else {
-        setErrorAf("isCorrect");
-        setTimeout(() => {
-          navigation.navigate("DrawerNavigator");
-        }, 3000);
+        setErrorAf(ErrorLogin.erro9);
       }
     } else {
-      setErrorAf(ErrorLogin.erro9);
+      if(formData.idCombi=="" && formData.password=="" && formData.phoneNumber=="" ){
+        setErrorAf(ErrorLogin.erro4)
+      }else{setErrorAf(ErrorLogin.erro12);}
     }
   };
 
@@ -111,6 +119,19 @@ const LoginIn: React.FC = () => {
             <Text style={styles.welcomeText}>Welcome My Bro</Text>
           </View>
 
+          <Animated.View
+            entering={FadeInDown.duration(700).springify()}
+            style={styles.inputContainer}
+          >
+            <TextInput
+              label="Id To Login"
+              value={formData.idCombi}
+              onChangeText={(value) => handleInputChange("idCombi", value)}
+              style={[styles.input]}
+              mode="outlined"
+              left={<TextInput.Icon icon="key" />}
+            />
+          </Animated.View>
           <Animated.View
             entering={FadeInDown.duration(700).springify()}
             style={styles.inputContainer}
