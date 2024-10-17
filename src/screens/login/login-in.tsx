@@ -1,5 +1,5 @@
 import { useNavigation } from "@react-navigation/native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   StyleSheet,
@@ -17,6 +17,8 @@ import Icon from "react-native-vector-icons/FontAwesome";
 import { normal } from "../../constants/color";
 import { getStoredData, isIdStore, VeriedLoginIn } from "../../types/functions";
 import { ErrorLogin } from "../../types/enums";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Badge } from 'react-native-paper';
 
 const LoginIn: React.FC = () => {
   const navigation = useNavigation<
@@ -24,9 +26,9 @@ const LoginIn: React.FC = () => {
   >();
 
   const [formData, setFormData] = useState({
-    idCombi: "",
-    phoneNumber: "",
-    password: "",
+    idCombi: "kudkud",
+    phoneNumber: "692134088",
+    password: "kud",
   });
   const [secureTextEntry, setSecureTextEntry] = useState(true);
 
@@ -67,6 +69,7 @@ const LoginIn: React.FC = () => {
           setErrorAf("isCorrect");
           setTimeout(() => {
             navigation.navigate("DrawerNavigator");
+            setErrorAf("");
           }, 3000);
         }
       } else {
@@ -78,6 +81,26 @@ const LoginIn: React.FC = () => {
       }else{setErrorAf(ErrorLogin.erro12);}
     }
   };
+
+
+  /**--AFfice le nombre de compte dans la mobile */
+  const [compteIDCOMBI, setCompteIDCOMBI] = useState<string[]>(['e','e']);
+  const getData = async () => {
+    try {
+      const jsonValue = await AsyncStorage.getItem('kud');
+      if (jsonValue !== null) {
+        const data = JSON.parse(jsonValue);
+        setCompteIDCOMBI(data);
+        console.log('Data loaded from AsyncStorage:', data);
+      }
+    } catch (e) {
+      console.error('Error loading data from AsyncStorage', e);
+    }
+  };
+  useEffect(() => {
+    getData(); 
+  }, []); 
+
 
   return (
     <View style={styles.container}>
@@ -114,9 +137,11 @@ const LoginIn: React.FC = () => {
             <TouchableOpacity
               style={[styles.loginICON, { backgroundColor: "#3b5998" }]}
             >
-              <Icon name="user-secret" size={45} color="#fff" />
+              <Badge >{compteIDCOMBI.length}</Badge>
+              <Icon name="user-secret" size={35} color="#fff" />
             </TouchableOpacity>
             <Text style={styles.welcomeText}>Welcome My Bro</Text>
+            
           </View>
 
           <Animated.View

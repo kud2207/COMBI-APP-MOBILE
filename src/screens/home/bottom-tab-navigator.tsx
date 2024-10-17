@@ -4,6 +4,7 @@ import Icon from "react-native-vector-icons/Ionicons";
 import { StyleSheet } from "react-native";
 import CustonBarButton from "../../components/home/CustonBarButton";
 import { useNavigation } from "@react-navigation/native";
+import { normal } from "../../constants/color";
 
 const Tab = createBottomTabNavigator();
 
@@ -14,20 +15,20 @@ export default function BottomTabNavigator() {
       screenOptions={({ route }) => ({
         headerShown: false,
         tabBarShowLabel: true,
-        tabBarActiveTintColor: "#b66d20",
+        tabBarActiveTintColor: normal.primary,
         tabBarStyle: styles.tabBarStyle,
         tabBarIcon: ({ color, focused }) => {
           let iconName = "";
-          if (route.name === "Home") {
-            iconName = focused ? "home" : "home-outline";
-          } else if (route.name === "Settings") {
-            iconName = focused ? "settings" : "settings-outline";
-          } else if (route.name === "Notification") {
+          if (route.name === "hbd") {
+            iconName = focused ? "calendar-number" : "calendar-number-outline";
+          } else if (route.name === "tache") {
+            iconName = focused ? "duplicate" : "duplicate-outline";
+          } else if (route.name === "map") {
             iconName = focused
-              ? "notifications-sharp"
-              : "notifications-outline";
-          } else if (route.name === "chate") {
-            iconName = focused ? "chatbubbles" : "chatbubbles-outline";
+              ? "location"
+              : "location-outline";
+          } else if (route.name === "people") {
+            iconName = focused ? "people-circle" : "people-circle";
           }
 
           // Set a default icon name to avoid undefined error
@@ -38,7 +39,7 @@ export default function BottomTabNavigator() {
       })}
     >
       <Tab.Screen
-        name="Home"
+        name="hbd"
         component={Notif}
         options={{
           tabBarButton: (props) => <CustonBarButton {...props} />,
@@ -46,7 +47,7 @@ export default function BottomTabNavigator() {
         }}
       />
       <Tab.Screen
-        name="Settings"
+        name="tache"
         component={Notif}
         options={{
           tabBarButton: (props) => <CustonBarButton {...props} />,
@@ -54,7 +55,7 @@ export default function BottomTabNavigator() {
         }}
       />
       <Tab.Screen
-        name="Notification"
+        name="map"
         component={Notif}
         options={{
           tabBarButton: (props) => <CustonBarButton {...props} />,
@@ -62,7 +63,7 @@ export default function BottomTabNavigator() {
         }}
       />
       <Tab.Screen
-        name="chate"
+        name="people"
         component={Notif}
         options={{
           tabBarButton: (props) => <CustonBarButton {...props} />,

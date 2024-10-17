@@ -35,6 +35,13 @@ const Register: React.FC = () => {
     password: "12j",
     confirmPassword: "12j",
   });
+
+  //creation de la sauvagade des diff compte
+  const [compteIDCOMBI, setCompteIDCOMBI] =useState<string[]>(["jjj","ddd",'444']) //variable add
+  const addIDCombi =(data:string)=>{ //fontion add
+    setCompteIDCOMBI((e)=>[...e, data])
+  }
+
   const aaa = formData.idCombi; //pwd store
   const [errors, setErrors] = useState({
     name: false,
@@ -77,7 +84,13 @@ const Register: React.FC = () => {
       // Récupère et affiche les données stockées
       const jsonValue = await AsyncStorage.getItem(aaa);
       if (jsonValue != null) {
-        const parsedValue = JSON.parse(jsonValue);
+        const parsedValue = await JSON.parse(jsonValue);
+        
+        //pour le save des diff compteCombi
+        addIDCombi(aaa)
+        const jsonID = JSON.stringify(compteIDCOMBI);
+        await AsyncStorage.setItem("kud", jsonID);
+
         console.log(
           "Données enregistrées dans le local storage :",
           parsedValue
@@ -381,6 +394,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    marginBottom:30
   },
   imageBG: {
     flex: 1,
@@ -389,7 +403,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     justifyContent: "center",
     alignItems: "center",
-    top: -180,
+    top: -195,
   },
   contentContainer: {
     flex: 1,
@@ -402,10 +416,10 @@ const styles = StyleSheet.create({
     justifyContent: "space-around",
   },
   imgTOP1: {
-    height: 70,
+    height: 60,
   },
   imgTOP2: {
-    height: 90,
+    height: 70,
   },
   contenaireForm: {
     flex: 8,
@@ -446,6 +460,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-evenly",
     width: "60%",
     marginTop: 5,
+    marginBottom:-1
   },
   socialButton: {
     borderRadius: 10,
@@ -474,7 +489,7 @@ const styles = StyleSheet.create({
   errorText: {
     color: normal.errr,
     textAlign: "center",
-    margin: 3,
+    margin: 5,
   },
   title: {
     textAlign: "center",
