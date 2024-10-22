@@ -37,7 +37,7 @@ export const VeriedLoginIn = (
   }
 }
 
-//verification si le Id Existe deja
+//verification si le Id Existe deja ::use storage
 export const isIdStore = async ({ idStore }: { idStore: string }) => {
   const jsonValue = await AsyncStorage.getItem(idStore)
   if (jsonValue != null) {
@@ -45,7 +45,7 @@ export const isIdStore = async ({ idStore }: { idStore: string }) => {
   } else { return false }
 }
 
-//funtion pour Recuper Le storage
+//funtion pour Recuper Le storage ::use storage
 import AsyncStorage from '@react-native-async-storage/async-storage';
 export const getStoredData = async ({idCombi}:{idCombi :string}): Promise<DataUser | null> => {
   try {

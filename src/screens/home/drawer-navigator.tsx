@@ -20,7 +20,7 @@ const DrawerNavigator = () => {
       }}
     >
       <Drawer.Screen 
-        name="Welcom" 
+        name="monCombi" 
         component={BottomTabNavigator}
         options={{
           drawerLabel: 'Home',

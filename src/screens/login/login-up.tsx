@@ -17,38 +17,34 @@ import {
 import { useNavigation } from "@react-navigation/native";
 import { normal } from "../../constants/color";
 import { Text } from "react-native-paper";
-import { isIdStore, VerifiedLoginUp } from "../../types/functions";
+import { VerifiedLoginUp } from "../../types/functions";
 import { ActivityIndicator } from "react-native-paper";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { ErrorLogin } from "../../types/enums";
+import { useSQLiteContext } from "expo-sqlite";
 
 const Register: React.FC = () => {
   const navigation = useNavigation<
     NavigationPropsRegister | NavigationPropsDrawerNavigator
   >();
+
   // État global pour tous les champs
-  const [formData, setFormData] = useState<DataUser>({
-    idCombi: "ddd",
-    name: "ulrich",
-    secondName: "auriol",
-    phoneNumber: "629213408",
-    password: "12j",
-    confirmPassword: "12j",
+  const [formData, setFormData] = useState({
+    name: "",
+    secondName: "",
+    phoneNumber: "",
+    password: "",
+    confirmPassword: "",
+    sexe: "",
+    hbd: "",
   });
 
-  //creation de la sauvagade des diff compte
-  const [compteIDCOMBI, setCompteIDCOMBI] =useState<string[]>(["jjj","ddd",'444']) //variable add
-  const addIDCombi =(data:string)=>{ //fontion add
-    setCompteIDCOMBI((e)=>[...e, data])
-  }
-
-  const aaa = formData.idCombi; //pwd store
   const [errors, setErrors] = useState({
     name: false,
     secondName: false,
     phoneNumber: false,
     password: false,
     confirmPassword: false,
+    sexe: false,
+    hbd: false,
   });
 
   const [secureTextEntry, setSecureTextEntry] = useState(true);
@@ -69,40 +65,17 @@ const Register: React.FC = () => {
   const [visible, setVisible] = React.useState(false); //visible modal
 
   const hideDialog = () => {
-    //visibilité de lamodal
+    //visibilité de laModal
     setVisible(false);
     setErrorAf("");
   };
 
-  //creation du compte dans le storage
+  //creation du compte dans le SQLite
+  const db = useSQLiteContext();
+
   const confirmRegister = async () => {
     setVisible(false);
-    try {
-      const jsonUsersCombi = JSON.stringify(formData);
-      await AsyncStorage.setItem(aaa, jsonUsersCombi);
-
-      // Récupère et affiche les données stockées
-      const jsonValue = await AsyncStorage.getItem(aaa);
-      if (jsonValue != null) {
-        const parsedValue = await JSON.parse(jsonValue);
-        
-        //pour le save des diff compteCombi
-        addIDCombi(aaa)
-        const jsonID = JSON.stringify(compteIDCOMBI);
-        await AsyncStorage.setItem("kud", jsonID);
-
-        console.log(
-          "Données enregistrées dans le local storage :",
-          parsedValue
-        );
-      } else {
-        console.log("Aucune donnée trouvée dans le local storage");
-      }
-    } catch (e: any) {
-      setErrorAf("An error occurred while saving");
-      console.error("Error saving to storage", e.message);
-    }
-
+    //fontion de save dans la BD
     navigation.reset({
       index: 0,
       routes: [{ name: "DrawerNavigator" }],
@@ -110,28 +83,20 @@ const Register: React.FC = () => {
   };
 
   const handleFormSubmit = async () => {
-    const {
-      idCombi,
-      name,
-      secondName,
-      phoneNumber,
-      password,
-      confirmPassword,
-    } = formData;
+    const { name, secondName, phoneNumber, password, confirmPassword } =
+      formData;
+
     const ValidationError = VerifiedLoginUp({
-      idCombi,
       name,
       secondName,
       phoneNumber,
       password,
       confirmPassword,
     });
-    //verifie si IdCombi existe
-    const isV = await isIdStore({ idStore: aaa });
+
+    //verifie si number existe
     if (ValidationError) {
       setErrorAf(ValidationError);
-    } else if (isV) {
-      setErrorAf(ErrorLogin.erro10);
     } else {
       setErrorAf("isCorrect");
       setTimeout(() => {
@@ -174,23 +139,6 @@ const Register: React.FC = () => {
             </TouchableOpacity>
           </View>
 
-          {/* idCombi */}
-          <Animated.View
-            entering={FadeInDown.duration(700).springify()}
-            style={styles.inputContainer}
-          >
-            <TextInput
-              label="Id To Login"
-              value={formData.idCombi}
-              onChangeText={(value) => handleChange("idCombi", value)}
-              onBlur={() => validateField("idCombi", formData.idCombi)}
-              style={[styles.input]}
-              mode="outlined"
-              error={errors.name}
-              left={<TextInput.Icon icon="key" />}
-              right={<TextInput.Icon icon="checkbox-marked-circle-outline" color="red" />}
-            />
-          </Animated.View>
           {/* Nom */}
           <Animated.View
             entering={FadeInDown.duration(700).springify()}
@@ -225,13 +173,30 @@ const Register: React.FC = () => {
             />
           </Animated.View>
 
+          {/* Sexe */}
+          <Animated.View
+            entering={FadeInDown.duration(700).springify()}
+            style={styles.inputContainer}
+          >
+            <TextInput
+              label="Sexe"
+              value={formData.sexe}
+              onChangeText={(value) => handleChange("sexe", value)}
+              onBlur={() => validateField("sexe", formData.sexe)}
+              style={styles.input}
+              mode="outlined"
+              error={errors.sexe}
+              left={<TextInput.Icon icon="gender-male-female" />} // You may choose a different icon
+            />
+          </Animated.View>
+
           {/* Numéro de téléphone */}
           <Animated.View
             entering={FadeInDown.duration(700).springify()}
             style={styles.inputContainer}
           >
             <TextInput
-              label="Phone Number"
+              label="Numéro de Téléphone"
               value={formData.phoneNumber}
               onChangeText={(value) => handleChange("phoneNumber", value)}
               onBlur={() => validateField("phoneNumber", formData.phoneNumber)}
@@ -240,7 +205,24 @@ const Register: React.FC = () => {
               error={errors.phoneNumber}
               keyboardType="numeric"
               left={<TextInput.Icon icon="phone" />}
-              maxLength={9}
+              maxLength={9} // Adjust max length as needed
+            />
+          </Animated.View>
+
+          {/* HB-D */}
+          <Animated.View
+            entering={FadeInDown.duration(700).springify()}
+            style={styles.inputContainer}
+          >
+            <TextInput
+              label="HB-D"
+              value={formData.hbd}
+              onChangeText={(value) => handleChange("hbd", value)}
+              onBlur={() => validateField("hbd", formData.hbd)}
+              style={styles.input}
+              mode="outlined"
+              error={errors.hbd}
+              left={<TextInput.Icon icon="calendar" />} // Change the icon as needed
             />
           </Animated.View>
 
@@ -293,6 +275,7 @@ const Register: React.FC = () => {
               }
             />
           </Animated.View>
+
           <View style={styles.connectWithContainer}>
             <View style={styles.horizontalLine} />
             <Text style={styles.connectWithText}>Create Account with</Text>
@@ -394,7 +377,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    marginBottom:30
+    marginBottom: 30,
   },
   imageBG: {
     flex: 1,
@@ -460,7 +443,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-evenly",
     width: "60%",
     marginTop: 5,
-    marginBottom:-1
+    marginBottom: -1,
   },
   socialButton: {
     borderRadius: 10,

@@ -5,6 +5,7 @@ import { StyleSheet } from "react-native";
 import CustonBarButton from "../../components/home/CustonBarButton";
 import { useNavigation } from "@react-navigation/native";
 import { normal } from "../../constants/color";
+import TacheHome from "../tache/tache-home";
 
 const Tab = createBottomTabNavigator();
 
@@ -48,7 +49,7 @@ export default function BottomTabNavigator() {
       />
       <Tab.Screen
         name="tache"
-        component={Notif}
+        component={TacheHome}
         options={{
           tabBarButton: (props) => <CustonBarButton {...props} />,
           tabBarLabel: " ",
@@ -76,11 +77,12 @@ export default function BottomTabNavigator() {
 
 const styles = StyleSheet.create({
   tabBarStyle: {
-    backgroundColor: "transparent",
+    backgroundColor: "white",
     position: "absolute",
     borderTopWidth: 0,
     bottom: 0,
     right: 0,
     left: 0,
+
   },
 });
