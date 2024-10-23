@@ -1,12 +1,19 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   StyleSheet,
   StatusBar,
   ImageBackground,
   TouchableOpacity,
+  Platform,
 } from "react-native";
-import { TextInput, Button, Dialog, Portal } from "react-native-paper";
+import {
+  TextInput,
+  Button,
+  Dialog,
+  Portal,
+  RadioButton,
+} from "react-native-paper";
 import Animated, { FadeInDown, FadeInUp } from "react-native-reanimated";
 import Icon from "react-native-vector-icons/FontAwesome";
 import {
@@ -19,12 +26,13 @@ import { normal } from "../../constants/color";
 import { Text } from "react-native-paper";
 import { VerifiedLoginUp } from "../../types/functions";
 import { ActivityIndicator } from "react-native-paper";
-import { useSQLiteContext } from "expo-sqlite";
+import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 
 const Register: React.FC = () => {
   const navigation = useNavigation<
     NavigationPropsRegister | NavigationPropsDrawerNavigator
   >();
+  const [dateHbd, setDateHbd] = useState<Date>(new Date()); 
 
   // État global pour tous les champs
   const [formData, setFormData] = useState({
@@ -34,7 +42,7 @@ const Register: React.FC = () => {
     password: "",
     confirmPassword: "",
     sexe: "",
-    hbd: "",
+    hbd: dateHbd,
   });
 
   const [errors, setErrors] = useState({
@@ -71,7 +79,6 @@ const Register: React.FC = () => {
   };
 
   //creation du compte dans le SQLite
-  const db = useSQLiteContext();
 
   const confirmRegister = async () => {
     setVisible(false);
@@ -85,7 +92,7 @@ const Register: React.FC = () => {
   const handleFormSubmit = async () => {
     const { name, secondName, phoneNumber, password, confirmPassword } =
       formData;
-
+    // verification si les champs sont rempli
     const ValidationError = VerifiedLoginUp({
       name,
       secondName,
@@ -103,6 +110,35 @@ const Register: React.FC = () => {
         setVisible(true);
       }, 3000);
     }
+  };
+
+
+  /**set HBD */
+  const [show, setShow] = useState(false);
+
+  // Utiliser useEffect pour log ou toute action supplémentaire après la mise à jour de la date
+  useEffect(() => {
+    if (!show) {
+      // Si le picker est fermé et que la date est à jour, tu peux utiliser date ici
+      console.log("Date mise à jour pour la base de données :", dateHbd);
+      // Ici tu peux appeler ton API pour sauvegarder la date dans la BD
+      // saveDateToDatabase(date); // Exemple de fonction pour sauvegarder
+    }
+  }, [dateHbd, show]);
+
+  const onChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
+    const currentDate = selectedDate || dateHbd;
+    setShow(Platform.OS === 'ios'); 
+
+    // Récupère uniquement la date sans l'heure et met à jour l'état
+    const onlyDate = new Date(currentDate.setHours(0, 0, 0, 0));
+    setDateHbd(onlyDate); // La mise à jour de la date est assurée ici
+
+    console.log("Nouvelle date choisie :", onlyDate); // Affiche la nouvelle date dans la console
+  };
+
+  const showDatepicker = () => {
+    setShow(true);
   };
 
   return (
@@ -139,57 +175,6 @@ const Register: React.FC = () => {
             </TouchableOpacity>
           </View>
 
-          {/* Nom */}
-          <Animated.View
-            entering={FadeInDown.duration(700).springify()}
-            style={styles.inputContainer}
-          >
-            <TextInput
-              label="Name"
-              value={formData.name}
-              onChangeText={(value) => handleChange("name", value)}
-              onBlur={() => validateField("name", formData.name)}
-              style={styles.input}
-              mode="outlined"
-              error={errors.name}
-              left={<TextInput.Icon icon="account" />}
-            />
-          </Animated.View>
-
-          {/* Second Nom */}
-          <Animated.View
-            entering={FadeInDown.duration(700).springify()}
-            style={styles.inputContainer}
-          >
-            <TextInput
-              label="Second Name"
-              value={formData.secondName}
-              onChangeText={(value) => handleChange("secondName", value)}
-              onBlur={() => validateField("secondName", formData.secondName)}
-              style={styles.input}
-              mode="outlined"
-              error={errors.secondName}
-              left={<TextInput.Icon icon="account-outline" />}
-            />
-          </Animated.View>
-
-          {/* Sexe */}
-          <Animated.View
-            entering={FadeInDown.duration(700).springify()}
-            style={styles.inputContainer}
-          >
-            <TextInput
-              label="Sexe"
-              value={formData.sexe}
-              onChangeText={(value) => handleChange("sexe", value)}
-              onBlur={() => validateField("sexe", formData.sexe)}
-              style={styles.input}
-              mode="outlined"
-              error={errors.sexe}
-              left={<TextInput.Icon icon="gender-male-female" />} // You may choose a different icon
-            />
-          </Animated.View>
-
           {/* Numéro de téléphone */}
           <Animated.View
             entering={FadeInDown.duration(700).springify()}
@@ -209,21 +194,77 @@ const Register: React.FC = () => {
             />
           </Animated.View>
 
-          {/* HB-D */}
+          {/* Nom */}
           <Animated.View
             entering={FadeInDown.duration(700).springify()}
             style={styles.inputContainer}
           >
             <TextInput
-              label="HB-D"
-              value={formData.hbd}
-              onChangeText={(value) => handleChange("hbd", value)}
-              onBlur={() => validateField("hbd", formData.hbd)}
+              label="Name"
+              value={formData.name}
+              onChangeText={(value) => handleChange("name", value)}
+              onBlur={() => validateField("name", formData.name)}
               style={styles.input}
               mode="outlined"
-              error={errors.hbd}
-              left={<TextInput.Icon icon="calendar" />} // Change the icon as needed
+              error={errors.name}
+              left={<TextInput.Icon icon="account" />}
             />
+          </Animated.View>
+          {/* Sexe */}
+          <Animated.View
+            entering={FadeInDown.duration(700).springify()}
+            style={[styles.inputContainer, { justifyContent: "space-between"}]}
+          >
+            <TextInput
+              label="Sexe" 
+              mode="outlined"
+              left={<TextInput.Icon icon="gender-male-female" />}
+              style={{ height: 40 }}
+              disabled={true}
+            />
+            <RadioButton.Group
+              onValueChange={(value) => handleChange("sexe", value)}
+              value={formData.sexe}
+            >
+              <View style={{ flexDirection: "row" }}>
+                <View style={styles.radioContainer}>
+                  <RadioButton value="male" />
+                  <Text>Masculin</Text>
+                </View>
+                <View style={styles.radioContainer}>
+                  <RadioButton value="female" />
+                  <Text>Féminin</Text>
+                </View>
+              </View>
+            </RadioButton.Group>
+          </Animated.View>
+
+          {/* HB-D */}
+          <Animated.View
+            entering={FadeInDown.duration(700).springify()}
+            style={styles.inputContainer}
+          >
+          <TextInput
+          value={(formData.hbd).toDateString()}
+              label="HB-D"
+              mode="outlined"
+              left={<TextInput.Icon icon="calendar" 
+                onPress={showDatepicker} 
+                />} 
+                style={[styles.input,{textAlign:'center'}]}
+            />
+            
+            <View>
+      {show && (
+        <DateTimePicker
+          value={formData.hbd}
+          mode="date" 
+          display="default"
+          onChange={onChange}
+        />
+      )}
+            
+          </View>
           </Animated.View>
 
           {/* Mot de passe */}
@@ -490,6 +531,15 @@ const styles = StyleSheet.create({
   dataText: {
     fontSize: 16,
     fontWeight: "bold",
+  },
+
+  label: {
+    fontSize: 16,
+    marginBottom: 8,
+  },
+  radioContainer: {
+    flexDirection: "row",
+    alignItems: "center",
   },
 });
 
