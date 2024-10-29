@@ -17,7 +17,6 @@ import {
 import Animated, { FadeInDown, FadeInUp } from "react-native-reanimated";
 import Icon from "react-native-vector-icons/FontAwesome";
 import {
-  DataUser,
   NavigationPropsDrawerNavigator,
   NavigationPropsRegister,
 } from "../../types/types";
@@ -26,13 +25,17 @@ import { normal } from "../../constants/color";
 import { Text } from "react-native-paper";
 import { VerifiedLoginUp } from "../../types/functions";
 import { ActivityIndicator } from "react-native-paper";
-import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
+import DateTimePicker, {
+  DateTimePickerEvent,
+} from "@react-native-community/datetimepicker";
+import { useSQLiteContext } from "expo-sqlite";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Register: React.FC = () => {
   const navigation = useNavigation<
     NavigationPropsRegister | NavigationPropsDrawerNavigator
   >();
-  const [dateHbd, setDateHbd] = useState<Date>(new Date()); 
+  const [dateHbd, setDateHbd] = useState<Date>(new Date());
 
   // État global pour tous les champs
   const [formData, setFormData] = useState({
@@ -42,8 +45,11 @@ const Register: React.FC = () => {
     password: "",
     confirmPassword: "",
     sexe: "",
-    hbd: dateHbd,
+    hbd: "",
   });
+
+  //connected SQLite
+  const db = useSQLiteContext()
 
   const [errors, setErrors] = useState({
     name: false,
@@ -81,15 +87,30 @@ const Register: React.FC = () => {
   //creation du compte dans le SQLite
 
   const confirmRegister = async () => {
-    setVisible(false);
-    //fontion de save dans la BD
-    navigation.reset({
-      index: 0,
-      routes: [{ name: "DrawerNavigator" }],
-    });
+    try {
+      setVisible(false);
+      //fontion de save dans la BD
+      await db.runAsync('INSERT INTO users (numeroTelephone, nom, sexe, hbd, password) VALUES (?,?,?,?,?)',
+        [formData.phoneNumber, formData.name, formData.sexe,dateHbd.getTime(), formData.password]
+      );
+      
+      try {
+        await AsyncStorage.setItem('number', formData.phoneNumber);
+      } catch (e:any) {
+        console.log('Error save number LocalStorage', e.message)
+      }
+     
+      navigation.reset({
+        index: 0,
+        routes: [{ name: "DrawerNavigator" }],
+      });
+    } catch (error: any) {
+      console.error("Error to save SQLite", error.message);
+    }
   };
 
   const handleFormSubmit = async () => {
+
     const { name, secondName, phoneNumber, password, confirmPassword } =
       formData;
     // verification si les champs sont rempli
@@ -105,13 +126,26 @@ const Register: React.FC = () => {
     if (ValidationError) {
       setErrorAf(ValidationError);
     } else {
-      setErrorAf("isCorrect");
-      setTimeout(() => {
-        setVisible(true);
-      }, 3000);
+      try {
+        const existeNumberSqlite = await db.getFirstAsync('SELECT * FROM users WHERE numeroTelephone = ?',
+          [formData.phoneNumber]
+        )
+        if (existeNumberSqlite) {
+          setErrorAf('He phone number already exists. Please use a different one.')
+        } else {
+
+          setErrorAf("isCorrect");
+          setTimeout(() => {
+            setVisible(true);
+          }, 3000);
+
+        }
+      } catch (error: any) {
+        console.error("errorSQLIte: Verify phoneNumber", error.message);
+      }
+
     }
   };
-
 
   /**set HBD */
   const [show, setShow] = useState(false);
@@ -119,22 +153,21 @@ const Register: React.FC = () => {
   // Utiliser useEffect pour log ou toute action supplémentaire après la mise à jour de la date
   useEffect(() => {
     if (!show) {
-      // Si le picker est fermé et que la date est à jour, tu peux utiliser date ici
-      console.log("Date mise à jour pour la base de données :", dateHbd);
-      // Ici tu peux appeler ton API pour sauvegarder la date dans la BD
-      // saveDateToDatabase(date); // Exemple de fonction pour sauvegarder
+      const bb = dateHbd.getTime()
+      console.log("Date mise à jour pour la base de données :", bb, new Date(bb));
+
     }
   }, [dateHbd, show]);
 
   const onChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
     const currentDate = selectedDate || dateHbd;
-    setShow(Platform.OS === 'ios'); 
+    setShow(Platform.OS === "ios");
 
     // Récupère uniquement la date sans l'heure et met à jour l'état
     const onlyDate = new Date(currentDate.setHours(0, 0, 0, 0));
     setDateHbd(onlyDate); // La mise à jour de la date est assurée ici
 
-    console.log("Nouvelle date choisie :", onlyDate); // Affiche la nouvelle date dans la console
+    console.log("Nouvelle date en chiffre :", onlyDate); // Affiche la nouvelle date dans la console
   };
 
   const showDatepicker = () => {
@@ -174,7 +207,6 @@ const Register: React.FC = () => {
               <Icon name="user-circle-o" size={38} color="#fff" />
             </TouchableOpacity>
           </View>
-
           {/* Numéro de téléphone */}
           <Animated.View
             entering={FadeInDown.duration(700).springify()}
@@ -213,13 +245,13 @@ const Register: React.FC = () => {
           {/* Sexe */}
           <Animated.View
             entering={FadeInDown.duration(700).springify()}
-            style={[styles.inputContainer, { justifyContent: "space-between"}]}
+            style={[styles.inputContainer, { justifyContent: "space-between" }]}
           >
             <TextInput
-              label="Sexe" 
+              label="Sexe"
               mode="outlined"
               left={<TextInput.Icon icon="gender-male-female" />}
-              style={{ height: 40 }}
+              style={{ height: 40, marginBottom: 5 }}
               disabled={true}
             />
             <RadioButton.Group
@@ -228,11 +260,11 @@ const Register: React.FC = () => {
             >
               <View style={{ flexDirection: "row" }}>
                 <View style={styles.radioContainer}>
-                  <RadioButton value="male" />
+                  <RadioButton value="masculin" />
                   <Text>Masculin</Text>
                 </View>
                 <View style={styles.radioContainer}>
-                  <RadioButton value="female" />
+                  <RadioButton value="femminin" />
                   <Text>Féminin</Text>
                 </View>
               </View>
@@ -244,27 +276,31 @@ const Register: React.FC = () => {
             entering={FadeInDown.duration(700).springify()}
             style={styles.inputContainer}
           >
-          <TextInput
-          value={(formData.hbd).toDateString()}
-              label="HB-D"
+            <TextInput
+              value={dateHbd.toDateString()}
+              label="You Are Bist Day"
               mode="outlined"
-              left={<TextInput.Icon icon="calendar" 
-                onPress={showDatepicker} 
-                />} 
-                style={[styles.input,{textAlign:'center'}]}
+              left={
+                <TextInput.Icon
+                  icon="calendar"
+                  onPress={showDatepicker}
+                  color="green"
+                />
+              }
+              style={[styles.input, { textAlign: "center" }]}
+              onBlur={showDatepicker}
             />
-            
+
             <View>
-      {show && (
-        <DateTimePicker
-          value={formData.hbd}
-          mode="date" 
-          display="default"
-          onChange={onChange}
-        />
-      )}
-            
-          </View>
+              {show && (
+                <DateTimePicker
+                  value={dateHbd}
+                  mode="date"
+                  display="default"
+                  onChange={onChange}
+                />
+              )}
+            </View>
           </Animated.View>
 
           {/* Mot de passe */}
@@ -377,21 +413,29 @@ const Register: React.FC = () => {
                 <Dialog.Content>
                   <View style={styles.contenaireData}>
                     <Text variant="bodyMedium" style={styles.labelText}>
+                      Numer Phone:
+                    </Text>
+                    <Text style={styles.dataText}>{formData.phoneNumber}</Text>
+                  </View>
+                  <View style={styles.contenaireData}>
+                    <Text variant="bodyMedium" style={styles.labelText}>
                       Name:
                     </Text>
                     <Text style={styles.dataText}>{formData.name}</Text>
                   </View>
                   <View style={styles.contenaireData}>
                     <Text variant="bodyMedium" style={styles.labelText}>
-                      Second Name:
+                      Sexe:
                     </Text>
-                    <Text style={styles.dataText}>{formData.secondName}</Text>
+                    <Text style={styles.dataText}>{formData.sexe}</Text>
                   </View>
                   <View style={styles.contenaireData}>
                     <Text variant="bodyMedium" style={styles.labelText}>
-                      Phone Number:
+                      You Date to HBD:
                     </Text>
-                    <Text style={styles.dataText}>{formData.phoneNumber}</Text>
+                    <Text style={styles.dataText}>
+                      {dateHbd.toDateString()}
+                    </Text>
                   </View>
                   <View style={styles.contenaireData}>
                     <Text variant="bodyMedium" style={styles.labelText}>

@@ -4,19 +4,15 @@ import { PaperProvider } from "react-native-paper";
 import LoginIn from "./src/screens/login/login-in";
 import Register from "./src/screens/login/login-up";
 import DrawerNavigator from "./src/screens/home/drawer-navigator";
-import {
-  SQLiteProvider,
-} from "expo-sqlite";
-import { initializeDatabase } from "./src/sql/sqlite";
+import { SQLiteProvider, useSQLiteContext, type SQLiteDatabase } from 'expo-sqlite';
+import { migrateDbIfNeeded } from "./src/sql/sqlite";
 
 const Stack = createNativeStackNavigator();
-
-
 export default function App() {
   return (
-        <SQLiteProvider databaseName="monCombi" onInit={initializeDatabase}>
+    <SQLiteProvider databaseName="monCombi.db" onInit={migrateDbIfNeeded}>
 
-    <PaperProvider>
+      <PaperProvider>
         <NavigationContainer>
           <Stack.Navigator
             initialRouteName="LoginIn"
@@ -28,6 +24,6 @@ export default function App() {
           </Stack.Navigator>
         </NavigationContainer>
       </PaperProvider>
-            </SQLiteProvider>
+    </SQLiteProvider>
   );
 }

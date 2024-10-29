@@ -17,9 +17,9 @@ export type NavigationPropsTache = StackNavigationProp<RootStackParamList, 'tach
 //type Login
 
 export type DataUser = {
+    phoneNumber: string,
     name: string,
     secondName: string,
-    phoneNumber: string,
     password: string,
     confirmPassword: string,
 }
