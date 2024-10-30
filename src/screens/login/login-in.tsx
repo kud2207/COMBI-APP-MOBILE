@@ -15,20 +15,21 @@ import { TextInput, Button, ActivityIndicator, Text } from "react-native-paper";
 import Animated, { FadeInDown, FadeInUp } from "react-native-reanimated";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { normal } from "../../constants/color";
-import { getStoredData, isIdStore, VeriedLoginIn } from "../../types/functions";
+import { Badge } from 'react-native-paper';
+import { VeriedLoginIn } from "../../types/functions";
+import { useSQLiteContext } from "expo-sqlite";
 import { ErrorLogin } from "../../types/enums";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Badge } from 'react-native-paper';
 
 const LoginIn: React.FC = () => {
   const navigation = useNavigation<
     NavigationPropsLoginIn | NavigationPropsDrawerNavigator
   >();
+  //connected SQLite
 
   const [formData, setFormData] = useState({
-    idCombi: "kudkud",
-    phoneNumber: "692134088",
-    password: "kud",
+    phoneNumber: "",
+    password: "",
   });
   const [secureTextEntry, setSecureTextEntry] = useState(true);
 
@@ -43,63 +44,63 @@ const LoginIn: React.FC = () => {
     });
   };
 
+  //Compter le nombre de Compte dans le tel
+  const [userCount, setUserCount] = useState(0);
+
+  const countUsers = async () => {
+    try {
+      const result = await db.getFirstAsync('SELECT COUNT(*) as count FROM users') as { count: number };
+      setUserCount(result.count); 
+    } catch (error) {
+      console.error("Erreur lors du comptage des comptes :", error);
+    }
+  };
+  useEffect(() => {
+    countUsers();
+  }, []); 
+
   //Login
+  const db = useSQLiteContext()
   const handleConnexion = async () => {
-    const isIdStore1 = await isIdStore({ idStore: formData.idCombi });
-    if (isIdStore1) {
-      const storedData = await getStoredData({ idCombi: formData.idCombi });
-      if (storedData) {
-        const { phoneNumber, password } = storedData; // Utilise les données du form
-        const phoneNumberVerified1 = phoneNumber;
-        const passwordVerified1 = password;
-        const phone = formData.phoneNumber;
-        const pwd = formData.password;
+    try {
+      const veifiedLogin = await VeriedLoginIn({
+        phoneNumber: formData.phoneNumber,
+        password: formData.password,
+      })
+      const verifedUserSQLite = await db.getFirstAsync(
+        'SELECT * FROM users WHERE numeroTelephone = ? AND password = ?',
+        [formData.phoneNumber, formData.password]
+      );
+      
+      if (veifiedLogin) {
+        setErrorAf(veifiedLogin)
 
-        // Valide les données récupérées
-        const verifiedLogin = VeriedLoginIn({
-          phoneNumber: phone,
-          password: pwd,
-          phoneNumberVerified: phoneNumberVerified1,
-          passwordVerified: passwordVerified1,
-        });
+      } else if (verifedUserSQLite === null) {
+        // const recupValueSQLite = JSON.parse(JSON.stringify(verifedSQLite))
+        return setErrorAf(ErrorLogin.erro11)
 
-        if (verifiedLogin) {
-          setErrorAf(verifiedLogin);
-        } else {
-          setErrorAf("isCorrect");
-          setTimeout(() => {
-            navigation.navigate("DrawerNavigator");
-            setErrorAf("");
-          }, 3000);
-        }
       } else {
-        setErrorAf(ErrorLogin.erro9);
+        setErrorAf("isCorrect");
+        try {
+          await AsyncStorage.setItem('number', formData.phoneNumber);
+        } catch (e:any) {
+          console.log('Error save number LocalStorage', e.message)
+        }
+        setTimeout(() => {
+          navigation.navigate("DrawerNavigator");
+          setErrorAf("");
+        }, 3000);
       }
-    } else {
-      if(formData.idCombi=="" && formData.password=="" && formData.phoneNumber=="" ){
-        setErrorAf(ErrorLogin.erro4)
-      }else{setErrorAf(ErrorLogin.erro12);}
+
+    }
+    catch (error: any) {
+      console.log("Erreur lors de la connexion :", error.message);
+      setErrorAf("Connection error. Please try again");
     }
   };
 
 
   /**--AFfice le nombre de compte dans la mobile */
-  const [compteIDCOMBI, setCompteIDCOMBI] = useState<string[]>(['e','e']);
-  const getData = async () => {
-    try {
-      const jsonValue = await AsyncStorage.getItem('kud');
-      if (jsonValue !== null) {
-        const data = JSON.parse(jsonValue);
-        setCompteIDCOMBI(data);
-        console.log('Data loaded from AsyncStorage:', data);
-      }
-    } catch (e) {
-      console.error('Error loading data from AsyncStorage', e);
-    }
-  };
-  useEffect(() => {
-    getData(); 
-  }, []); 
 
 
   return (
@@ -137,26 +138,14 @@ const LoginIn: React.FC = () => {
             <TouchableOpacity
               style={[styles.loginICON, { backgroundColor: "#3b5998" }]}
             >
-              <Badge >{compteIDCOMBI.length}</Badge>
+              <Badge >{userCount}</Badge>
               <Icon name="user-secret" size={35} color="#fff" />
             </TouchableOpacity>
             <Text style={styles.welcomeText}>Welcome My Bro</Text>
-            
+
           </View>
 
-          <Animated.View
-            entering={FadeInDown.duration(700).springify()}
-            style={styles.inputContainer}
-          >
-            <TextInput
-              label="Id To Login"
-              value={formData.idCombi}
-              onChangeText={(value) => handleInputChange("idCombi", value)}
-              style={[styles.input]}
-              mode="outlined"
-              left={<TextInput.Icon icon="key" />}
-            />
-          </Animated.View>
+
           <Animated.View
             entering={FadeInDown.duration(700).springify()}
             style={styles.inputContainer}
@@ -168,6 +157,7 @@ const LoginIn: React.FC = () => {
               style={styles.input}
               mode="outlined"
               left={<TextInput.Icon icon="phone" />}
+              maxLength={9}
             />
           </Animated.View>
           <Animated.View

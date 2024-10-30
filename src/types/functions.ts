@@ -19,18 +19,17 @@ export const VerifiedLoginUp = ({ name,  phoneNumber, password, confirmPassword 
 }
 
 //Verification du Login au compte
-export const VeriedLoginIn = (
-  { phoneNumber, password, phoneNumberVerified, passwordVerified }
-    : { phoneNumber: string, password: string, phoneNumberVerified: string, passwordVerified: string }
+export const VeriedLoginIn = async(
+  { phoneNumber, password }
+  : { phoneNumber: string, password: string}
 ) => {
+  
   if (phoneNumber == '' && password == '') {
-    return ErrorLogin.erro4
+    return   ErrorLogin.erro4
   } else if (phoneNumber == '' || password == '') {
-    return ErrorLogin.erro8
+    return  ErrorLogin.erro8
   }
-  else if (phoneNumber != phoneNumberVerified || password != passwordVerified) {
-    return ErrorLogin.erro6
-  }
+
 }
 
 
