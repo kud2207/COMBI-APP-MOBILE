@@ -71,7 +71,7 @@ const LoginIn: React.FC = () => {
         'SELECT * FROM users WHERE numeroTelephone = ? AND password = ?',
         [formData.phoneNumber, formData.password]
       );
-      
+
       if (veifiedLogin) {
         setErrorAf(veifiedLogin)
 
@@ -297,7 +297,7 @@ const styles = StyleSheet.create({
   },
   input: {
     width: "100%",
-    height: 40,
+    height: 38,
     marginBottom: 0,
   },
   button: {

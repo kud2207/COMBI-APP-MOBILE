@@ -14,7 +14,6 @@ import { useNavigation } from "@react-navigation/native";
 import { NavigationPropsAddTache } from "../../types/types";
 
 export default function Tache() {
-  const bgBleu = require("../../assets/images/bgBleu1.jpg");
   const navigation = useNavigation<NavigationPropsAddTache>();
   const goddTask = () => {
     navigation.replace("addTache");
@@ -22,11 +21,7 @@ export default function Tache() {
 
   return (
     <View style={styles.container}>
-      <ImageBackground
-        source={bgBleu}
-        resizeMode="cover"
-        style={styles.imageBG}
-      >
+   
         <View style={styles.container1}>
           <View style={styles.flex1}>
             <SearchBarTache />
@@ -44,7 +39,6 @@ export default function Tache() {
         <TouchableOpacity style={styles.addButton} onPress={goddTask}>
           <Icon name="plus" size={24} color="#fff" />
         </TouchableOpacity>
-      </ImageBackground>
     </View>
   );
 }
@@ -52,6 +46,7 @@ export default function Tache() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor:'#2e86c1'
   },
   imageBG: {
     flex: 1,
