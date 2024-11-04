@@ -158,6 +158,7 @@ const LoginIn: React.FC = () => {
               mode="outlined"
               left={<TextInput.Icon icon="phone" />}
               maxLength={9}
+              keyboardType="numeric"
             />
           </Animated.View>
           <Animated.View

@@ -4,10 +4,16 @@ import { useNavigation } from '@react-navigation/native';
 import { NavigationPropsTache } from '../../types/types';
 import Icon from "react-native-vector-icons/AntDesign";
 import Entypo from "react-native-vector-icons/Entypo";
+import Toast from 'react-native-toast-message';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useSQLiteContext } from 'expo-sqlite';
+
+  //connected SQLite
+  const db = useSQLiteContext()
 
 // Catégories et couleurs disponibles
 const categoriesOptions = ['Travail', 'Personnel', 'Urgent', 'Études', 'other'];
-const colorOptions = ['#3498db', '#f1948a', '#52be80','#f1c40f','#212f3d'];
+const colorOptions = ['#3498db', '#f1948a', '#52be80', '#f1c40f', '#212f3d'];
 
 export default function AddTache() {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -34,14 +40,36 @@ export default function AddTache() {
     setSelectedColors((prevSelected) => {
       if (prevSelected.includes(color)) {
         return [];
-      } else  {
+      } else {
         return [color];
       }
     });
   };
 
-  const handleAddTask = () => {
-    console.log('Tâche ajoutée :', { selectedCategories, taskName, description, selectedColors });
+  const handleAddTask = async() => {
+try {
+  const selectedCategoriesSTRING = selectedCategories.join(', ')
+  const selectedColorsSTRING = selectedColors.join(', ')
+  console.log('Tâche ajoutée :', { selectedCategories, taskName, description, selectedColors });
+
+    const storageNumberUser = await AsyncStorage.getItem('number');
+    if (storageNumberUser !== null) {
+      console.log('staore number',storageNumberUser )
+    }
+ 
+
+  // Afficher le toast personnalisé
+  Toast.show({
+    type: 'success',
+    text1: 'Tache enregistréavec succès!',
+    text2: `${taskName} : ${description}`,
+    position: 'bottom',
+    visibilityTime: 2000, 
+  });
+  
+} catch (error:any) {
+  console.log('Error DE SAVE TACHE', error.message)
+}
   };
 
   return (
@@ -101,11 +129,12 @@ export default function AddTache() {
         onChangeText={(text) => setDescription(text)}
       />
 
-    <View style={{flex:1, alignItems:'center'}}>
-    <TouchableOpacity style={styles.button} onPress={handleAddTask}>
-        <Text style={styles.buttonText}>Save La Tâche  <Entypo name='save' size={20} /></Text>
-      </TouchableOpacity>
-    </View>
+      <View style={{ flex: 1, alignItems: 'center' }}>
+        <TouchableOpacity style={styles.button} onPress={handleAddTask}>
+          <Text style={styles.buttonText}>Save La Tâche  <Entypo name='save' size={20} /></Text>
+        </TouchableOpacity>
+        <Toast />
+      </View>
     </View>
   );
 }
@@ -185,21 +214,21 @@ const styles = StyleSheet.create({
   colorButtonSelected: {
     borderColor: '#fff',
     borderWidth: 3,
-  
+
   },
   button: {
     backgroundColor: '#3498db',
-    paddingVertical:10,
+    paddingVertical: 10,
     borderRadius: 10,
     alignItems: 'center',
     marginTop: 15,
-    width:250
-    
+    width: 250
+
   },
   buttonText: {
     color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
-    
+
   },
 });

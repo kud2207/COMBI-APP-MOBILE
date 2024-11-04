@@ -454,6 +454,8 @@ const Register: React.FC = () => {
         </Animated.View>
       </View>
     </View>
+
+
   );
 };
 
