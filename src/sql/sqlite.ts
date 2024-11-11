@@ -23,15 +23,16 @@ export async function migrateDbIfNeeded(db: SQLiteDatabase): Promise<void> {
             `);
             console.log('Table users créée avec succès');
         } else {
+            //await db.execAsync("DROP TABLE users;");
             console.log('La table users existe déjà');
         }
     } catch (error: any) {
         console.error("Erreur lors de la migration de la base de données :", error.message);
-         // await db.execAsync("DROP TABLE users;");
-    }
-    
 
-//TASK
+    }
+
+
+    //TASK
     try {
         // Vérifier si la table tasks existe déjà
         const tasksExists = await db.getFirstAsync<{ name: string }>(
@@ -48,18 +49,19 @@ export async function migrateDbIfNeeded(db: SQLiteDatabase): Promise<void> {
                     description TEXT,
                     selectedColors TEXT,
                     createdAt TEXT,
+                    isChecked BOOLEAN DEFAULT 0, 
                     FOREIGN KEY(idUser) REFERENCES users(numeroTelephone)
                 );
             `);
             console.log('Table tasks créée avec succès');
         } else {
+           // await db.execAsync("DROP TABLE tasks;");
             console.log('La table tasks existe déjà');
-            // await db.execAsync("DROP TABLE tasks;");
         }
     } catch (error: any) {
         console.error("Erreur lors de la migration de la base de données :", error.message);
     }
-    
+
 
     // Mettre à jour la version de la base de données
     await db.execAsync(`PRAGMA user_version = ${DATABASE_VERSION}`);

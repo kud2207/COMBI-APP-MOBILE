@@ -9,7 +9,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useSQLiteContext } from 'expo-sqlite';
 
   //connected SQLite
-  const db = useSQLiteContext()
+  //const db = useSQLiteContext()
 
 // Catégories et couleurs disponibles
 const categoriesOptions = ['Travail', 'Personnel', 'Urgent', 'Études', 'other'];
