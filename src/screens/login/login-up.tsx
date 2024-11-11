@@ -6,6 +6,7 @@ import {
   ImageBackground,
   TouchableOpacity,
   Platform,
+  ScrollView,
 } from "react-native";
 import {
   TextInput,
@@ -91,15 +92,15 @@ const Register: React.FC = () => {
       setVisible(false);
       //fontion de save dans la BD
       await db.runAsync('INSERT INTO users (numeroTelephone, nom, sexe, hbd, password) VALUES (?,?,?,?,?)',
-        [formData.phoneNumber, formData.name, formData.sexe,dateHbd.getTime(), formData.password]
+        [formData.phoneNumber, formData.name, formData.sexe, dateHbd.getTime(), formData.password]
       );
-      
+
       try {
         await AsyncStorage.setItem('number', formData.phoneNumber);
-      } catch (e:any) {
+      } catch (e: any) {
         console.log('Error save number LocalStorage', e.message)
       }
-     
+
       navigation.reset({
         index: 0,
         routes: [{ name: "DrawerNavigator" }],
@@ -182,277 +183,280 @@ const Register: React.FC = () => {
         style={styles.imageBG}
         resizeMode="cover"
       />
+      <ScrollView keyboardShouldPersistTaps="never" showsVerticalScrollIndicator={false} style={{ flex: 1, width: '100%' }}>
 
-      <View style={styles.contentContainer}>
-        <View style={styles.contenaireImg}>
-          <Animated.Image
-            entering={FadeInUp.delay(200).duration(1000).springify().damping(4)}
-            style={styles.imgTOP1}
-            source={require("../../assets/images/light.png")}
-            resizeMode="contain"
-          />
-          <Animated.Image
-            entering={FadeInUp.delay(400).duration(1000).springify().damping(4)}
-            style={styles.imgTOP2}
-            source={require("../../assets/images/light.png")}
-            resizeMode="contain"
-          />
-        </View>
-
-        <Animated.View style={styles.contenaireForm}>
-          <View style={[styles.contenaireLOGIN, { marginTop: -30 }]}>
-            <TouchableOpacity
-              style={[styles.loginICON, { backgroundColor: "#3b5998" }]}
-            >
-              <Icon name="user-circle-o" size={38} color="#fff" />
-            </TouchableOpacity>
+        <View style={styles.contentContainer}>
+          <View style={styles.contenaireImg}>
+            <Animated.Image
+              entering={FadeInUp.delay(200).duration(1000).springify().damping(4)}
+              style={styles.imgTOP1}
+              source={require("../../assets/images/light.png")}
+              resizeMode="contain"
+            />
+            <Animated.Image
+              entering={FadeInUp.delay(400).duration(1000).springify().damping(4)}
+              style={styles.imgTOP2}
+              source={require("../../assets/images/light.png")}
+              resizeMode="contain"
+            />
           </View>
-          {/* Numéro de téléphone */}
-          <Animated.View
-            entering={FadeInDown.duration(700).springify()}
-            style={styles.inputContainer}
-          >
-            <TextInput
-              label="Numéro de Téléphone"
-              value={formData.phoneNumber}
-              onChangeText={(value) => handleChange("phoneNumber", value)}
-              onBlur={() => validateField("phoneNumber", formData.phoneNumber)}
-              style={styles.input}
-              mode="outlined"
-              error={errors.phoneNumber}
-              keyboardType="numeric"
-              left={<TextInput.Icon icon="phone" />}
-              maxLength={9} // Adjust max length as needed
-            />
-          </Animated.View>
 
-          {/* Nom */}
-          <Animated.View
-            entering={FadeInDown.duration(700).springify()}
-            style={styles.inputContainer}
-          >
-            <TextInput
-              label="Name"
-              value={formData.name}
-              onChangeText={(value) => handleChange("name", value)}
-              onBlur={() => validateField("name", formData.name)}
-              style={styles.input}
-              mode="outlined"
-              error={errors.name}
-              left={<TextInput.Icon icon="account" />}
-            />
-          </Animated.View>
-          {/* Sexe */}
-          <Animated.View
-            entering={FadeInDown.duration(700).springify()}
-            style={[styles.inputContainer, { justifyContent: "space-between" }]}
-          >
-            <TextInput
-              label="Sexe"
-              mode="outlined"
-              left={<TextInput.Icon icon="gender-male-female" />}
-              style={{ height: 40, marginBottom: 5 }}
-              disabled={true}
-            />
-            <RadioButton.Group
-              onValueChange={(value) => handleChange("sexe", value)}
-              value={formData.sexe}
-            >
-              <View style={{ flexDirection: "row" }}>
-                <View style={styles.radioContainer}>
-                  <RadioButton value="masculin" />
-                  <Text>Masculin</Text>
-                </View>
-                <View style={styles.radioContainer}>
-                  <RadioButton value="femminin" />
-                  <Text>Féminin</Text>
-                </View>
-              </View>
-            </RadioButton.Group>
-          </Animated.View>
-
-          {/* HB-D */}
-          <Animated.View
-            entering={FadeInDown.duration(700).springify()}
-            style={styles.inputContainer}
-          >
-            <TextInput
-              value={dateHbd.toDateString()}
-              label="You Are Bist Day"
-              mode="outlined"
-              left={
-                <TextInput.Icon
-                  icon="calendar"
-                  onPress={showDatepicker}
-                  color="green"
-                />
-              }
-              style={[styles.input, { textAlign: "center" }]}
-              onBlur={showDatepicker}
-            />
-
-            <View>
-              {show && (
-                <DateTimePicker
-                  value={dateHbd}
-                  mode="date"
-                  display="default"
-                  onChange={onChange}
-                />
-              )}
+          <Animated.View style={styles.contenaireForm}>
+            <View style={[styles.contenaireLOGIN, { marginTop: 40 }]}>
+              <TouchableOpacity
+                style={[styles.loginICON, { backgroundColor: "#3b5998" }]}
+              >
+                <Icon name="user-circle-o" size={38} color="#fff" />
+              </TouchableOpacity>
             </View>
-          </Animated.View>
-
-          {/* Mot de passe */}
-          <Animated.View
-            entering={FadeInDown.duration(700).springify()}
-            style={styles.inputContainer}
-          >
-            <TextInput
-              label="Password"
-              value={formData.password}
-              onChangeText={(value) => handleChange("password", value)}
-              onBlur={() => validateField("password", formData.password)}
-              secureTextEntry={secureTextEntry}
-              style={styles.input}
-              mode="outlined"
-              error={errors.password}
-              left={<TextInput.Icon icon="lock" />}
-              right={
-                <TextInput.Icon
-                  icon="eye"
-                  onPress={() => setSecureTextEntry(!secureTextEntry)}
-                />
-              }
-            />
-          </Animated.View>
-
-          {/* Confirmation du mot de passe */}
-          <Animated.View
-            entering={FadeInDown.duration(700).springify()}
-            style={styles.inputContainer}
-          >
-            <TextInput
-              label="Confirm Password"
-              value={formData.confirmPassword}
-              onChangeText={(value) => handleChange("confirmPassword", value)}
-              onBlur={() =>
-                validateField("confirmPassword", formData.confirmPassword)
-              }
-              secureTextEntry={secureTextEntry2}
-              style={styles.input}
-              mode="outlined"
-              error={errors.confirmPassword}
-              left={<TextInput.Icon icon="lock" />}
-              right={
-                <TextInput.Icon
-                  icon="eye"
-                  onPress={() => setSecureTextEntry2(!secureTextEntry2)}
-                />
-              }
-            />
-          </Animated.View>
-
-          <View style={styles.connectWithContainer}>
-            <View style={styles.horizontalLine} />
-            <Text style={styles.connectWithText}>Create Account with</Text>
-            <View style={styles.horizontalLine} />
-          </View>
-
-          {/* Social Login Buttons */}
-          <Animated.View
-            entering={FadeInDown.duration(700).springify()}
-            style={styles.socialIconsContainer}
-          >
-            <TouchableOpacity
-              style={[styles.socialButton, { backgroundColor: "#db4437" }]}
+            {/* Numéro de téléphone */}
+            <Animated.View
+              entering={FadeInDown.duration(700).springify()}
+              style={styles.inputContainer}
             >
-              <Icon name="google" size={20} color="#fff" />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.socialButton, { backgroundColor: "#3b5998" }]}
+              <TextInput
+                label="Numéro de Téléphone"
+                value={formData.phoneNumber}
+                onChangeText={(value) => handleChange("phoneNumber", value)}
+                onBlur={() => validateField("phoneNumber", formData.phoneNumber)}
+                style={styles.input}
+                mode="outlined"
+                error={errors.phoneNumber}
+                keyboardType="numeric"
+                left={<TextInput.Icon icon="phone" />}
+                maxLength={9} // Adjust max length as needed
+              />
+            </Animated.View>
+
+            {/* Nom */}
+            <Animated.View
+              entering={FadeInDown.duration(700).springify()}
+              style={styles.inputContainer}
             >
-              <Icon name="facebook" size={20} color="#fff" />
-            </TouchableOpacity>
-          </Animated.View>
-          <Animated.View entering={FadeInDown.duration(700).springify()}>
-            <Text variant="labelSmall" style={styles.errorText}>
-              {errorAf == "isCorrect" ? (
-                <ActivityIndicator animating={true} color={normal.primary} />
-              ) : (
-                errorAf
-              )}
+              <TextInput
+                label="Name"
+                value={formData.name}
+                onChangeText={(value) => handleChange("name", value)}
+                onBlur={() => validateField("name", formData.name)}
+                style={styles.input}
+                mode="outlined"
+                error={errors.name}
+                left={<TextInput.Icon icon="account" />}
+              />
+            </Animated.View>
+            {/* Sexe */}
+            <Animated.View
+              entering={FadeInDown.duration(700).springify()}
+              style={[styles.inputContainer, { justifyContent: "space-between" }]}
+            >
+              <TextInput
+                label="Sexe"
+                mode="outlined"
+                left={<TextInput.Icon icon="gender-male-female" />}
+                style={{ height: 40, marginBottom: 5 }}
+                disabled={true}
+              />
+              <RadioButton.Group
+                onValueChange={(value) => handleChange("sexe", value)}
+                value={formData.sexe}
+              >
+                <View style={{ flexDirection: "row" }}>
+                  <View style={styles.radioContainer}>
+                    <RadioButton value="masculin" />
+                    <Text>Masculin</Text>
+                  </View>
+                  <View style={styles.radioContainer}>
+                    <RadioButton value="femminin" />
+                    <Text>Féminin</Text>
+                  </View>
+                </View>
+              </RadioButton.Group>
+            </Animated.View>
+
+            {/* HB-D */}
+            <Animated.View
+              entering={FadeInDown.duration(700).springify()}
+              style={styles.inputContainer}
+            >
+              <TextInput
+                value={dateHbd.toDateString()}
+                label="You Are Bist Day"
+                mode="outlined"
+                left={
+                  <TextInput.Icon
+                    icon="calendar"
+                    onPress={showDatepicker}
+                    color="green"
+                  />
+                }
+                style={[styles.input, { textAlign: "center" }]}
+                onBlur={showDatepicker}
+              />
+
+              <View>
+                {show && (
+                  <DateTimePicker
+                    value={dateHbd}
+                    mode="date"
+                    display="default"
+                    onChange={onChange}
+                  />
+                )}
+              </View>
+            </Animated.View>
+
+            {/* Mot de passe */}
+            <Animated.View
+              entering={FadeInDown.duration(700).springify()}
+              style={styles.inputContainer}
+            >
+              <TextInput
+                label="Password"
+                value={formData.password}
+                onChangeText={(value) => handleChange("password", value)}
+                onBlur={() => validateField("password", formData.password)}
+                secureTextEntry={secureTextEntry}
+                style={styles.input}
+                mode="outlined"
+                error={errors.password}
+                left={<TextInput.Icon icon="lock" />}
+                right={
+                  <TextInput.Icon
+                    icon="eye"
+                    onPress={() => setSecureTextEntry(!secureTextEntry)}
+                  />
+                }
+              />
+            </Animated.View>
+
+            {/* Confirmation du mot de passe */}
+            <Animated.View
+              entering={FadeInDown.duration(700).springify()}
+              style={styles.inputContainer}
+            >
+              <TextInput
+                label="Confirm Password"
+                value={formData.confirmPassword}
+                onChangeText={(value) => handleChange("confirmPassword", value)}
+                onBlur={() =>
+                  validateField("confirmPassword", formData.confirmPassword)
+                }
+                secureTextEntry={secureTextEntry2}
+                style={styles.input}
+                mode="outlined"
+                error={errors.confirmPassword}
+                left={<TextInput.Icon icon="lock" />}
+                right={
+                  <TextInput.Icon
+                    icon="eye"
+                    onPress={() => setSecureTextEntry2(!secureTextEntry2)}
+                  />
+                }
+              />
+            </Animated.View>
+
+            <View style={styles.connectWithContainer}>
+              <View style={styles.horizontalLine} />
+              <Text style={styles.connectWithText}>Create Account with</Text>
+              <View style={styles.horizontalLine} />
+            </View>
+
+            {/* Social Login Buttons */}
+            <Animated.View
+              entering={FadeInDown.duration(700).springify()}
+              style={styles.socialIconsContainer}
+            >
+              <TouchableOpacity
+                style={[styles.socialButton, { backgroundColor: "#db4437" }]}
+              >
+                <Icon name="google" size={20} color="#fff" />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.socialButton, { backgroundColor: "#3b5998" }]}
+              >
+                <Icon name="facebook" size={20} color="#fff" />
+              </TouchableOpacity>
+            </Animated.View>
+            <Animated.View entering={FadeInDown.duration(700).springify()}>
+              <Text variant="labelSmall" style={styles.errorText}>
+                {errorAf == "isCorrect" ? (
+                  <ActivityIndicator animating={true} color={normal.primary} />
+                ) : (
+                  errorAf
+                )}
+              </Text>
+            </Animated.View>
+            {/* Bouton Créer un compte */}
+            <Button
+              icon={() => <Icon name="user-plus" size={20} color="white" />}
+              mode="contained"
+              onPress={handleFormSubmit}
+              style={styles.button}
+            >
+              Create Account
+            </Button>
+
+            <Text>
+              I have an account?
+              <TouchableOpacity onPress={() => navigation.navigate("LoginIn")}>
+                <Text style={{ color: normal.secondary, fontSize: 15 }}>
+                  {" "}
+                  SignIn
+                </Text>
+              </TouchableOpacity>
+              {/* ModalConfirmation */}
+              <Portal>
+                <Dialog visible={visible} onDismiss={hideDialog}>
+                  <Dialog.Icon icon="account-check" size={50} />
+                  <Dialog.Title style={styles.title}>
+                    Do you want to save this data?
+                  </Dialog.Title>
+
+                  <Dialog.Content>
+                    <View style={styles.contenaireData}>
+                      <Text variant="bodyMedium" style={styles.labelText}>
+                        Numer Phone:
+                      </Text>
+                      <Text style={styles.dataText}>{formData.phoneNumber}</Text>
+                    </View>
+                    <View style={styles.contenaireData}>
+                      <Text variant="bodyMedium" style={styles.labelText}>
+                        Name:
+                      </Text>
+                      <Text style={styles.dataText}>{formData.name}</Text>
+                    </View>
+                    <View style={styles.contenaireData}>
+                      <Text variant="bodyMedium" style={styles.labelText}>
+                        Sexe:
+                      </Text>
+                      <Text style={styles.dataText}>{formData.sexe}</Text>
+                    </View>
+                    <View style={styles.contenaireData}>
+                      <Text variant="bodyMedium" style={styles.labelText}>
+                        You Date to HBD:
+                      </Text>
+                      <Text style={styles.dataText}>
+                        {dateHbd.toDateString()}
+                      </Text>
+                    </View>
+                    <View style={styles.contenaireData}>
+                      <Text variant="bodyMedium" style={styles.labelText}>
+                        Password:
+                      </Text>
+                      <Text style={styles.dataText}>{formData.password}</Text>
+                    </View>
+                  </Dialog.Content>
+                  <Dialog.Actions>
+                    <Button onPress={() => hideDialog()}>Cancel</Button>
+                    <Button onPress={confirmRegister}>Save</Button>
+                  </Dialog.Actions>
+                </Dialog>
+              </Portal>
             </Text>
           </Animated.View>
-          {/* Bouton Créer un compte */}
-          <Button
-            icon={() => <Icon name="user-plus" size={20} color="white" />}
-            mode="contained"
-            onPress={handleFormSubmit}
-            style={styles.button}
-          >
-            Create Account
-          </Button>
+        </View>
+      </ScrollView>
 
-          <Text>
-            I have an account?
-            <TouchableOpacity onPress={() => navigation.navigate("LoginIn")}>
-              <Text style={{ color: normal.secondary, fontSize: 15 }}>
-                {" "}
-                SignIn
-              </Text>
-            </TouchableOpacity>
-            {/* ModalConfirmation */}
-            <Portal>
-              <Dialog visible={visible} onDismiss={hideDialog}>
-                <Dialog.Icon icon="account-check" size={50} />
-                <Dialog.Title style={styles.title}>
-                  Do you want to save this data?
-                </Dialog.Title>
-
-                <Dialog.Content>
-                  <View style={styles.contenaireData}>
-                    <Text variant="bodyMedium" style={styles.labelText}>
-                      Numer Phone:
-                    </Text>
-                    <Text style={styles.dataText}>{formData.phoneNumber}</Text>
-                  </View>
-                  <View style={styles.contenaireData}>
-                    <Text variant="bodyMedium" style={styles.labelText}>
-                      Name:
-                    </Text>
-                    <Text style={styles.dataText}>{formData.name}</Text>
-                  </View>
-                  <View style={styles.contenaireData}>
-                    <Text variant="bodyMedium" style={styles.labelText}>
-                      Sexe:
-                    </Text>
-                    <Text style={styles.dataText}>{formData.sexe}</Text>
-                  </View>
-                  <View style={styles.contenaireData}>
-                    <Text variant="bodyMedium" style={styles.labelText}>
-                      You Date to HBD:
-                    </Text>
-                    <Text style={styles.dataText}>
-                      {dateHbd.toDateString()}
-                    </Text>
-                  </View>
-                  <View style={styles.contenaireData}>
-                    <Text variant="bodyMedium" style={styles.labelText}>
-                      Password:
-                    </Text>
-                    <Text style={styles.dataText}>{formData.password}</Text>
-                  </View>
-                </Dialog.Content>
-                <Dialog.Actions>
-                  <Button onPress={() => hideDialog()}>Cancel</Button>
-                  <Button onPress={confirmRegister}>Save</Button>
-                </Dialog.Actions>
-              </Dialog>
-            </Portal>
-          </Text>
-        </Animated.View>
-      </View>
     </View>
 
 
@@ -478,6 +482,7 @@ const styles = StyleSheet.create({
   contentContainer: {
     flex: 1,
     width: "100%",
+
   },
   contenaireImg: {
     flex: 1,
@@ -492,7 +497,7 @@ const styles = StyleSheet.create({
     height: 70,
   },
   contenaireForm: {
-    flex: 8,
+    flex: 1,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -500,6 +505,7 @@ const styles = StyleSheet.create({
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
+
   },
   loginICON: {
     borderRadius: 50,
@@ -514,6 +520,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 1,
     width: "90%",
+
   },
   input: {
     width: "100%",
