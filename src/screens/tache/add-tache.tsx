@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, ToastAndroid, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NavigationPropsTache } from '../../types/types';
 import Icon from "react-native-vector-icons/AntDesign";
@@ -7,19 +7,25 @@ import Entypo from "react-native-vector-icons/Entypo";
 import Toast from 'react-native-toast-message';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useSQLiteContext } from 'expo-sqlite';
+import { normal } from '../../constants/color';
+import { ErrorLogin } from '../../types/enums';
 
-  //connected SQLite
-  //const db = useSQLiteContext()
 
 // Catégories et couleurs disponibles
 const categoriesOptions = ['Travail', 'Personnel', 'Urgent', 'Études', 'other'];
 const colorOptions = ['#3498db', '#f1948a', '#52be80', '#f1c40f', '#212f3d'];
 
 export default function AddTache() {
+  //connected SQLite
+  const db = useSQLiteContext()
+
+
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [taskName, setTaskName] = useState<string>('');
   const [description, setDescription] = useState<string>('');
   const [selectedColors, setSelectedColors] = useState<string[]>([]);
+  const [errorAf, setErrorAf] = useState<string>(''); //aff ero register
+
 
   const navigation = useNavigation<NavigationPropsTache>();
 
@@ -46,30 +52,40 @@ export default function AddTache() {
     });
   };
 
-  const handleAddTask = async() => {
-try {
-  const selectedCategoriesSTRING = selectedCategories.join(', ')
-  const selectedColorsSTRING = selectedColors.join(', ')
-  console.log('Tâche ajoutée :', { selectedCategories, taskName, description, selectedColors });
+  //SAVE TACHE
+  const handleAddTask = async () => {
+    try {
+      const selectedCategoriesSTRING = selectedCategories.join(', ');
+      const selectedColorsSTRING = selectedColors.join(', ');
+      const createdAt = new Date().getTime();
+      const storageNumberUser = await AsyncStorage.getItem('number');
 
-    const storageNumberUser = await AsyncStorage.getItem('number');
-    if (storageNumberUser !== null) {
-      console.log('staore number',storageNumberUser )
+      if (taskName === "" || selectedCategories.length === 0 || description === "" || selectedColors.length === 0) {
+        setErrorAf(ErrorLogin.erro4);
+      } else {
+        if (storageNumberUser !== null) {
+          await db.runAsync(
+            'INSERT INTO tasks (idUser, taskName, selectedCategories, description, selectedColors, createdAt) VALUES (?,?,?,?,?,?)',
+            [storageNumberUser, taskName, selectedCategoriesSTRING, description, selectedColorsSTRING, createdAt]
+          );
+
+          // Afficher le toast personnalisé pour le succès
+          Toast.show({
+            type: 'success',
+            text1: 'Tâche enregistrée avec succès!',
+            text2: `${taskName} : ${description}`,
+            position: 'bottom',
+            visibilityTime: 2000,
+          });
+        } else {
+          // Si le numéro de l'utilisateur est null
+          ToastAndroid.show("Erreur lors de l'enregistrement de la tâche", ToastAndroid.SHORT);
+        }
+      }
+    } catch (error: any) {
+      console.log('Erreur lors de l\'enregistrement de la tâche:', error.message);
+      ToastAndroid.show("Erreur lors de l'enregistrement de la tâche", ToastAndroid.LONG);
     }
- 
-
-  // Afficher le toast personnalisé
-  Toast.show({
-    type: 'success',
-    text1: 'Tache enregistréavec succès!',
-    text2: `${taskName} : ${description}`,
-    position: 'bottom',
-    visibilityTime: 2000, 
-  });
-  
-} catch (error:any) {
-  console.log('Error DE SAVE TACHE', error.message)
-}
   };
 
   return (
@@ -82,59 +98,63 @@ try {
 
       <Text style={styles.title}>Nouvelle Tâche   <Entypo name="add-to-list" size={30} color={'#3498db'} /></Text>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Nom de la tâche"
-        value={taskName}
-        onChangeText={(text) => setTaskName(text)}
-      />
+      <ScrollView showsVerticalScrollIndicator={false} >
+        <TextInput
+          style={styles.input}
+          placeholder="Nom de la tâche"
+          value={taskName}
+          onChangeText={(text) => setTaskName(text)}
+        />
 
-      <Text style={styles.sectionTitle}>Catégories </Text>
-      <View style={styles.optionsContainer}>
-        {categoriesOptions.map((category) => (
-          <TouchableOpacity
-            key={category}
-            style={[
-              styles.optionButton,
-              selectedCategories.includes(category) && styles.optionButtonSelected
-            ]}
-            onPress={() => toggleCategory(category)}
-          >
-            <Text style={styles.optionText}>{category}</Text>
+        <Text style={styles.sectionTitle}>Catégories </Text>
+        <View style={styles.optionsContainer}>
+          {categoriesOptions.map((category) => (
+            <TouchableOpacity
+              key={category}
+              style={[
+                styles.optionButton,
+                selectedCategories.includes(category) && styles.optionButtonSelected
+              ]}
+              onPress={() => toggleCategory(category)}
+            >
+              <Text style={styles.optionText}>{category}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        <Text style={styles.sectionTitle}>Couleurs </Text>
+        <View style={styles.optionsContainer}>
+          {colorOptions.map((color) => (
+            <TouchableOpacity
+              key={color}
+              style={[
+                styles.colorButton,
+                { backgroundColor: color },
+                selectedColors.includes(color) && styles.colorButtonSelected
+              ]}
+              onPress={() => toggleColor(color)}
+            />
+          ))}
+        </View>
+
+        <TextInput
+          style={[styles.input, styles.description]}
+          placeholder="Description"
+          multiline
+          numberOfLines={4}
+          value={description}
+          onChangeText={(text) => setDescription(text)}
+        />
+        <View>
+          <Text style={styles.errorText}> {errorAf}</Text>
+        </View>
+        <View style={{ flex: 1, alignItems: 'center' }}>
+          <TouchableOpacity style={styles.button} onPress={handleAddTask}>
+            <Text style={styles.buttonText}>Save La Tâche  <Entypo name='save' size={20} /></Text>
           </TouchableOpacity>
-        ))}
-      </View>
-
-      <Text style={styles.sectionTitle}>Couleurs </Text>
-      <View style={styles.optionsContainer}>
-        {colorOptions.map((color) => (
-          <TouchableOpacity
-            key={color}
-            style={[
-              styles.colorButton,
-              { backgroundColor: color },
-              selectedColors.includes(color) && styles.colorButtonSelected
-            ]}
-            onPress={() => toggleColor(color)}
-          />
-        ))}
-      </View>
-
-      <TextInput
-        style={[styles.input, styles.description]}
-        placeholder="Description"
-        multiline
-        numberOfLines={4}
-        value={description}
-        onChangeText={(text) => setDescription(text)}
-      />
-
-      <View style={{ flex: 1, alignItems: 'center' }}>
-        <TouchableOpacity style={styles.button} onPress={handleAddTask}>
-          <Text style={styles.buttonText}>Save La Tâche  <Entypo name='save' size={20} /></Text>
-        </TouchableOpacity>
-        <Toast />
-      </View>
+          <Toast />
+        </View>
+      </ScrollView>
     </View>
   );
 }
@@ -213,7 +233,7 @@ const styles = StyleSheet.create({
   },
   colorButtonSelected: {
     borderColor: '#fff',
-    borderWidth: 3,
+    borderWidth: 4,
 
   },
   button: {
@@ -230,5 +250,10 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
 
+  },
+  errorText: {
+    color: normal.errr,
+    textAlign: "center",
+    margin: 5,
   },
 });
