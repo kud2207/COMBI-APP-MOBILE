@@ -23,3 +23,16 @@ export type DataUser = {
     password: string,
     confirmPassword: string,
 }
+
+
+//typr task
+export type Task = {
+    createdAt: string;
+    description: string;
+    id: number;
+    idUser: string;
+    selectedCategories: string;
+    selectedColors: string;
+    taskName: string;
+    isChecked: number;
+  };

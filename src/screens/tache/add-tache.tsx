@@ -13,7 +13,7 @@ import { ErrorLogin } from '../../types/enums';
 
 // Catégories et couleurs disponibles
 const categoriesOptions = ['Travail', 'Personnel', 'Urgent', 'Études', 'other'];
-const colorOptions = ['#3498db', '#f1948a', '#52be80', '#f1c40f', '#212f3d'];
+const colorOptions = ['#eaf2f8', '#fdedec', '#e8f8f5', '#fef9e7','#f5eef8','#eaecee'];
 
 export default function AddTache() {
   //connected SQLite
@@ -60,7 +60,7 @@ export default function AddTache() {
       const createdAt = new Date().getTime();
       const storageNumberUser = await AsyncStorage.getItem('number');
 
-      if (taskName === "" || selectedCategories.length === 0 || description === "" || selectedColors.length === 0) {
+      if (taskName === "" || description === "" ) {
         setErrorAf(ErrorLogin.erro4);
       } else {
         if (storageNumberUser !== null) {
@@ -77,6 +77,10 @@ export default function AddTache() {
             position: 'bottom',
             visibilityTime: 2000,
           });
+
+          setErrorAf(''),
+          setTaskName(''), setSelectedCategories([])
+          setDescription(''), setSelectedColors([])
         } else {
           // Si le numéro de l'utilisateur est null
           ToastAndroid.show("Erreur lors de l'enregistrement de la tâche", ToastAndroid.SHORT);
@@ -104,6 +108,7 @@ export default function AddTache() {
           placeholder="Nom de la tâche"
           value={taskName}
           onChangeText={(text) => setTaskName(text)}
+          maxLength={15}
         />
 
         <Text style={styles.sectionTitle}>Catégories </Text>

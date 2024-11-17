@@ -55,7 +55,7 @@ export async function migrateDbIfNeeded(db: SQLiteDatabase): Promise<void> {
             `);
             console.log('Table tasks créée avec succès');
         } else {
-           // await db.execAsync("DROP TABLE tasks;");
+           //await db.execAsync("DROP TABLE tasks;");
             console.log('La table tasks existe déjà');
         }
     } catch (error: any) {

@@ -30,8 +30,7 @@ export default function Tache() {
             <CathegorieTache />
           </View>
           <View style={styles.flex3}>
-            <RenderTache />
-            
+            <RenderTache />           
           </View>
         </View>
 
@@ -62,7 +61,7 @@ const styles = StyleSheet.create({
     flex: 3,
   },
   flex3: {
-    flex: 4,
+    flex: 4.8,
   },
   addButton: {
     position: "absolute",
@@ -75,5 +74,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     width: 40,
     height: 40,
+    elevation:4,
+
   },
 });
